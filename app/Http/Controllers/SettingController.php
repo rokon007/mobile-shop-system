@@ -15,9 +15,30 @@ class SettingController extends Controller
         return view('settings.index', compact('settings'));
     }
 
+    // public function update(Request $request)
+    // {
+    //     foreach ($request->except('_token', '_method') as $key => $value) {
+    //         SystemSetting::updateOrCreate(
+    //             ['key' => $key],
+    //             ['value' => $value]
+    //         );
+    //     }
+
+    //     return back()->with('success', 'Settings updated successfully');
+    // }
+
+
+
     public function update(Request $request)
     {
-        foreach ($request->except('_token', '_method') as $key => $value) {
+        // Handle file uploads first
+        if ($request->hasFile('company_logo')) {
+           // dd('ok');
+            $this->handleLogoUpload($request->file('company_logo'));
+        }
+
+        // Update other settings
+        foreach ($request->except('_token', '_method', 'shop_logo') as $key => $value) {
             SystemSetting::updateOrCreate(
                 ['key' => $key],
                 ['value' => $value]
@@ -25,6 +46,24 @@ class SettingController extends Controller
         }
 
         return back()->with('success', 'Settings updated successfully');
+    }
+
+    protected function handleLogoUpload($file)
+    {
+        // Delete old logo if exists
+        $oldLogo = SystemSetting::where('key', 'company_logo')->first();
+        if ($oldLogo && $oldLogo->value && Storage::disk('public')->exists($oldLogo->value)) {
+            Storage::disk('public')->delete($oldLogo->value);
+        }
+
+        // Store new logo
+        $path = $file->store('logos', 'public');
+
+        // Update database record
+        SystemSetting::updateOrCreate(
+            ['key' => 'shop_logo'],
+            ['value' => $path, 'type' => 'file', 'group' => 'shop']
+        );
     }
 
     public function backup()
@@ -40,11 +79,11 @@ class SettingController extends Controller
     public function downloadBackup(Request $request)
     {
         $filename = $request->filename;
-        
+
         if (Storage::exists('backups/' . $filename)) {
             return Storage::download('backups/' . $filename);
         }
-        
+
         return back()->with('error', 'Backup file not found');
     }
 }

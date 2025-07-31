@@ -78,9 +78,18 @@
                 <div class="form-group mb-4">
                     <label for="company_logo">Company Logo</label>
                     <input type="file" class="form-control" id="company_logo" name="company_logo" accept="image/*">
-                    @if(isset($settings['company_logo']) && $settings['company_logo'])
+
+                    @php
+                        $logoPath = \App\Models\SystemSetting::where('key', 'shop_logo')->value('value');
+                    @endphp
+
+                    @if($logoPath && Storage::disk('public')->exists($logoPath))
                         <div class="mt-2">
-                            <img src="{{ asset('storage/' . $settings['company_logo']) }}" alt="Company Logo" style="max-height: 100px;">
+                            <img src="{{ asset('storage/' . $logoPath) }}" class="logo-icon" alt="shop logo" style="max-height: 100px;">
+                        </div>
+                    @else
+                        <div class="mt-2">
+                            <img src="{{ asset('assets/img/logo.svg') }}" class="logo-icon" alt="default logo" style="max-height: 100px;">
                         </div>
                     @endif
                 </div>

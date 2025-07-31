@@ -1,7 +1,15 @@
 <aside class="sidebar-wrapper sidebar-theme" data-simplebar="true">
     <div class="sidebar-header">
         <div>
-            <img src="{{ asset('assets/img/logo.svg') }}" class="logo-icon" alt="logo icon">
+            @php
+                $logoPath = \App\Models\SystemSetting::where('key', 'shop_logo')->value('value');
+            @endphp
+
+            @if($logoPath && Storage::disk('public')->exists($logoPath))
+                <img src="{{ asset('storage/' . $logoPath) }}" class="logo-icon" alt="shop logo">
+            @else
+                <img src="{{ asset('assets/img/logo.svg') }}" class="logo-icon" alt="default logo">
+            @endif
         </div>
         <div>
             <h4 class="logo-text">SMS</h4>

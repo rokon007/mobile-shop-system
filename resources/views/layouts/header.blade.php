@@ -36,7 +36,7 @@
             <ul class="navbar-nav align-items-center">
 
                 <!-- Language Dropdown -->
-                <li class="nav-item dropdown">
+                {{-- <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="{{ asset('assets/img/1x1/us.svg') }}" class="flag-width" alt="flag">
                     </a>
@@ -48,7 +48,7 @@
                             <a class="dropdown-item d-flex align-items-center" href="#"><img src="{{ asset('assets/img/1x1/bd.svg') }}" class="flag-width me-2" alt="flag">বাংলা</a>
                         </li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Notification Dropdown -->
                 <li class="nav-item dropdown">
@@ -79,7 +79,8 @@
                 <!-- User Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="{{ auth()->user()->avatar ?? asset('assets/img/profile-30.png') }}" alt="avatar" class="rounded-circle" width="32" height="32">
+                        {{-- <img src="{{ auth()->user()->avatar ?? asset('assets/img/profile-30.png') }}" alt="avatar" class="rounded-circle" width="32" height="32"> --}}
+                        <img src="{{ auth()->user()->avatar ? asset('storage/'.auth()->user()->avatar) : asset('assets/images/avatars/avatar-1.png') }}" class="rounded-circle" width="32" alt="">
                         <span class="ms-2 d-none d-lg-inline">{{ auth()->user()->name }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
