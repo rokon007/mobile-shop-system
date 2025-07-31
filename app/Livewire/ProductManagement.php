@@ -34,6 +34,7 @@ class ProductManagement extends Component
     public $serial_number = '';
     public $warranty_months = 0;
     public $status = 'active';
+    public $sortField;
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -84,7 +85,7 @@ class ProductManagement extends Component
         $this->serial_number = $product->serial_number;
         $this->warranty_months = $product->warranty_months;
         $this->status = $product->status;
-        
+
         $this->showModal = true;
         $this->editMode = true;
     }
@@ -92,7 +93,7 @@ class ProductManagement extends Component
     public function save()
     {
         $this->validate();
-        
+
         $data = [
             'name' => $this->name,
             'slug' => Str::slug($this->name),
@@ -109,7 +110,7 @@ class ProductManagement extends Component
             'warranty_months' => $this->warranty_months,
             'status' => $this->status,
         ];
-        
+
         if ($this->editMode) {
             Product::findOrFail($this->productId)->update($data);
             session()->flash('message', 'Product updated successfully!');
@@ -117,7 +118,7 @@ class ProductManagement extends Component
             Product::create($data);
             session()->flash('message', 'Product created successfully!');
         }
-        
+
         $this->showModal = false;
         $this->resetForm();
     }
@@ -149,21 +150,21 @@ class ProductManagement extends Component
     public function render()
     {
         $query = Product::with(['brand', 'category']);
-        
+
         if ($this->search) {
             $query->where('name', 'like', '%' . $this->search . '%')
                   ->orWhere('model', 'like', '%' . $this->search . '%')
                   ->orWhere('imei', 'like', '%' . $this->search . '%');
         }
-        
+
         if ($this->selectedBrand) {
             $query->where('brand_id', $this->selectedBrand);
         }
-        
+
         if ($this->selectedCategory) {
             $query->where('category_id', $this->selectedCategory);
         }
-        
+
         $products = $query->latest()->paginate(10);
         $brands = Brand::where('status', 'active')->get();
         $categories = Category::where('status', 'active')->get();
