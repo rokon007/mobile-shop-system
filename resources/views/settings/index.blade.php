@@ -85,7 +85,8 @@
 
                     @if($logoPath && Storage::disk('public')->exists($logoPath))
                         <div class="mt-2">
-                            <img src="{{ asset('storage/' . $logoPath) }}" class="logo-icon" alt="shop logo" style="max-height: 100px;">
+                            {{-- <img src="{{ asset('storage/' . $logoPath) }}" class="logo-icon" alt="shop logo" style="max-height: 100px;"> --}}
+                            <img src="{{ asset('storage/app/public/' . $logoPath) }}" class="logo-icon" alt="shop logo" style="max-height: 100px;">
                         </div>
                     @else
                         <div class="mt-2">

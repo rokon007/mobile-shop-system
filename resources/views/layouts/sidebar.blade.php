@@ -6,7 +6,7 @@
             @endphp
 
             @if($logoPath && Storage::disk('public')->exists($logoPath))
-                <img src="{{ asset('storage/' . $logoPath) }}" class="logo-icon" alt="shop logo">
+                <img src="{{ asset('storage/app/public/' . $logoPath) }}" class="logo-icon" alt="shop logo">
             @else
                 <img src="{{ asset('assets/img/logo.svg') }}" class="logo-icon" alt="default logo">
             @endif
