@@ -52,7 +52,8 @@ class ReportController extends Controller
         $summary = [
             'total_sales' => $query->count(),
             'total_amount' => $query->sum('total_amount'),
-            //'total_profit' => $query->sum('profit'),
+            // 'total_profit' => $query->sum('profit'),
+            'total_profit' => 0,
             'avg_sale' => $query->avg('total_amount') ?? 0
         ];
 

@@ -42,7 +42,7 @@
                             </select>
                         </div>
                         <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
-                            <button class="btn btn-primary btn-sm w-100" onclick="filterAttendance()">
+                            <button type="button" class="btn btn-primary btn-sm w-100" id="filterButton">
                                 <i class="bi bi-funnel"></i> Filter
                             </button>
                         </div>
@@ -139,7 +139,7 @@
     </div>
 </div>
 
-<script>
+{{-- <script>
     function filterAttendance() {
         const date = document.getElementById('date_filter').value;
         const employeeId = document.getElementById('employee_filter').value;
@@ -208,6 +208,101 @@
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
     });
+</script> --}}
+
+
+<script>
+    function checkOut(attendanceId) {
+        if(confirm('Are you sure you want to check out this attendance?')) {
+            // Show loading indicator
+            const btn = event.target.closest('a');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+
+            fetch(`/attendances/${attendanceId}/check-out`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ _method: 'POST' })
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to check out');
+                }
+                return data;
+            })
+            .then(data => {
+                const toast = new bootstrap.Toast(document.getElementById('liveToast'));
+                document.getElementById('toastMessage').innerText = data.message;
+                toast.show();
+                setTimeout(() => window.location.reload(), 1000);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const toast = new bootstrap.Toast(document.getElementById('errorToast'));
+                document.getElementById('errorToastMessage').innerText = error.message;
+                toast.show();
+                btn.innerHTML = originalContent;
+            });
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Filter button event listener
+        document.getElementById('filterButton').addEventListener('click', function() {
+            filterAttendance();
+        });
+    });
+
+    function filterAttendance() {
+        try {
+            const date = document.getElementById('date_filter').value;
+            const employeeId = document.getElementById('employee_filter').value;
+            const status = document.getElementById('status_filter').value;
+
+            // Get current URL parameters
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(url.search);
+
+            // Update parameters
+            if (date) params.set('date', date);
+            else params.delete('date');
+
+            if (employeeId) params.set('employee_id', employeeId);
+            else params.delete('employee_id');
+
+            if (status) params.set('status', status);
+            else params.delete('status');
+
+            // Remove pagination parameter
+            params.delete('page');
+
+            // Reload page with new parameters
+            window.location.href = `${url.pathname}?${params.toString()}`;
+
+        } catch (error) {
+            console.error('Filter error:', error);
+            showToast('Error applying filters', 'danger');
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const toastEl = document.getElementById(type === 'success' ? 'liveToast' : 'errorToast');
+        const toastBody = document.getElementById(type === 'success' ? 'toastMessage' : 'errorToastMessage');
+
+        toastBody.innerText = message;
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    }
 </script>
 
 <!-- Toast Notification -->
