@@ -9,7 +9,7 @@
 
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('assets/images/favicon-32x32.png') }}" type="image/png" />
-
+    @yield('css')
     <!-- Styles -->
     @include('layouts.styles')
 
@@ -52,7 +52,7 @@
     <!-- Scripts -->
     @include('layouts.scripts')
     @livewireScripts
-
+    @yield('js')
     @stack('scripts')
 </body>
 </html>

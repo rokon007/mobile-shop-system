@@ -86,4 +86,10 @@ class SettingController extends Controller
 
         return back()->with('error', 'Backup file not found');
     }
+
+    public function deleteBackup($file)
+    {
+        Storage::delete('backups/' . $file);
+        return response()->json(['message' => 'Backup deleted successfully']);
+    }
 }

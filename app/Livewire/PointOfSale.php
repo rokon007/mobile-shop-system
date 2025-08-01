@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\SystemSetting;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 
@@ -16,50 +17,124 @@ class PointOfSale extends Component
     public $selectedCustomer = null;
     public $customerName = '';
     public $customerPhone = '';
+    public $customerAddress = '';
     public $paymentMethod = 'cash';
     public $paidAmount = 0;
     public $discountAmount = 0;
     public $taxAmount = 0;
     public $note = '';
+    public $showImeiModal = false;
+    public $currentCartIndex = null;
+    public $imeiNumbers = [];
+    public $serialNumbers = [];
 
     public function addToCart($productId)
     {
         $product = Product::find($productId);
-        
+
         if (!$product || $product->stock_quantity <= 0) {
             session()->flash('error', 'Product not available!');
             return;
         }
 
-        if (isset($this->cart[$productId])) {
-            if ($this->cart[$productId]['quantity'] >= $product->stock_quantity) {
+        $existingIndex = collect($this->cart)->search(function ($item) use ($productId) {
+            return $item['product_id'] == $productId;
+        });
+
+        if ($existingIndex !== false) {
+            if ($this->cart[$existingIndex]['quantity'] >= $product->stock_quantity) {
                 session()->flash('error', 'Insufficient stock!');
                 return;
             }
-            $this->cart[$productId]['quantity']++;
+            $this->cart[$existingIndex]['quantity']++;
+
+            // Add empty IMEI/Serial for new quantity
+            $newIndex = $this->cart[$existingIndex]['quantity'] - 1;
+            $this->cart[$existingIndex]['imei_numbers'][$newIndex] = '';
+            $this->cart[$existingIndex]['serial_numbers'][$newIndex] = '';
         } else {
-            $this->cart[$productId] = [
-                'id' => $product->id,
+            $this->cart[] = [
+                'product_id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->selling_price,
                 'quantity' => 1,
-                'stock' => $product->stock_quantity
+                'stock' => $product->stock_quantity,
+                'imei_numbers' => [''],
+                'serial_numbers' => ['']
             ];
         }
     }
 
-    public function updateQuantity($productId, $quantity)
+    public function updateQuantity($index, $quantity)
     {
         if ($quantity <= 0) {
-            unset($this->cart[$productId]);
+            unset($this->cart[$index]);
+            $this->cart = array_values($this->cart);
+            return;
+        }
+
+        if ($quantity > $this->cart[$index]['stock']) {
+            session()->flash('error', 'Quantity cannot exceed stock limit!');
+            return;
+        }
+
+        $oldQuantity = $this->cart[$index]['quantity'];
+        $this->cart[$index]['quantity'] = $quantity;
+
+        // Adjust IMEI/Serial arrays based on new quantity
+        if ($quantity > $oldQuantity) {
+            // Add empty entries for new items
+            for ($i = $oldQuantity; $i < $quantity; $i++) {
+                $this->cart[$index]['imei_numbers'][$i] = '';
+                $this->cart[$index]['serial_numbers'][$i] = '';
+            }
         } else {
-            $this->cart[$productId]['quantity'] = $quantity;
+            // Remove excess entries
+            $this->cart[$index]['imei_numbers'] = array_slice($this->cart[$index]['imei_numbers'], 0, $quantity);
+            $this->cart[$index]['serial_numbers'] = array_slice($this->cart[$index]['serial_numbers'], 0, $quantity);
         }
     }
 
-    public function removeFromCart($productId)
+    public function removeFromCart($index)
     {
-        unset($this->cart[$productId]);
+        unset($this->cart[$index]);
+        $this->cart = array_values($this->cart);
+    }
+
+    public function openImeiModal($index)
+    {
+        $this->currentCartIndex = $index;
+        $this->imeiNumbers = $this->cart[$index]['imei_numbers'] ?? [];
+        $this->serialNumbers = $this->cart[$index]['serial_numbers'] ?? [];
+
+        // Ensure arrays have correct length
+        $quantity = $this->cart[$index]['quantity'];
+        for ($i = count($this->imeiNumbers); $i < $quantity; $i++) {
+            $this->imeiNumbers[$i] = '';
+        }
+        for ($i = count($this->serialNumbers); $i < $quantity; $i++) {
+            $this->serialNumbers[$i] = '';
+        }
+
+        $this->showImeiModal = true;
+    }
+
+    public function saveImeiSerial()
+    {
+        if ($this->currentCartIndex !== null) {
+            $this->cart[$this->currentCartIndex]['imei_numbers'] = $this->imeiNumbers;
+            $this->cart[$this->currentCartIndex]['serial_numbers'] = $this->serialNumbers;
+        }
+        $this->closeImeiModal();
+        session()->flash('success', 'IMEI/Serial numbers saved successfully!');
+    }
+
+    public function closeImeiModal()
+    {
+        $this->showImeiModal = false;
+        $this->currentCartIndex = null;
+        $this->imeiNumbers = [];
+        $this->serialNumbers = [];
     }
 
     public function getSubtotalProperty()
@@ -79,6 +154,28 @@ class PointOfSale extends Component
         return $this->total - $this->paidAmount;
     }
 
+    private function generateInvoiceNumber()
+    {
+        $prefix = SystemSetting::where('key', 'invoice_prefix')->value('value') ?? 'INV';
+        $currentYear = date('Y');
+        $currentMonth = date('m');
+
+        // Get the last invoice number for current month
+        $lastSale = Sale::whereYear('created_at', $currentYear)
+                       ->whereMonth('created_at', $currentMonth)
+                       ->orderBy('id', 'desc')
+                       ->first();
+
+        if ($lastSale && preg_match('/(\d+)$/', $lastSale->invoice_no, $matches)) {
+            $lastNumber = intval($matches[1]);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        return $prefix . '-' . $currentYear . '-' . $currentMonth . '-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+    }
+
     public function processSale()
     {
         if (empty($this->cart)) {
@@ -87,14 +184,36 @@ class PointOfSale extends Component
         }
 
         DB::beginTransaction();
-        
+
         try {
+            $customerId = $this->selectedCustomer;
+
+            // Create new customer if not selected and customer details provided
+            if (!$customerId && ($this->customerName || $this->customerPhone)) {
+                if (!$this->customerName || !$this->customerPhone) {
+                    session()->flash('error', 'Please provide both customer name and phone number for new customer!');
+                    return;
+                }
+
+                $customer = Customer::create([
+                    'name' => $this->customerName,
+                    'phone' => $this->customerPhone,
+                    'address' => $this->customerAddress,
+                    'status' => 'active',
+                    'opening_balance' => 0,
+                    'current_balance' => 0,
+                    'credit_limit' => 0,
+                ]);
+
+                $customerId = $customer->id;
+            }
+
             // Create sale
             $sale = Sale::create([
-                'invoice_no' => 'INV-' . date('Ymd') . '-' . str_pad(Sale::count() + 1, 4, '0', STR_PAD_LEFT),
-                'customer_id' => $this->selectedCustomer,
-                'customer_name' => $this->customerName ?: null,
-                'customer_phone' => $this->customerPhone ?: null,
+                'invoice_no' => $this->generateInvoiceNumber(),
+                'customer_id' => $customerId,
+                'customer_name' => $customerId ? null : $this->customerName,
+                'customer_phone' => $customerId ? null : $this->customerPhone,
                 'sale_date' => now(),
                 'subtotal' => $this->subtotal,
                 'tax_amount' => $this->taxAmount,
@@ -110,27 +229,47 @@ class PointOfSale extends Component
 
             // Create sale items and update stock
             foreach ($this->cart as $item) {
-                SaleItem::create([
+                // Filter out empty IMEI/Serial numbers
+                $imeiNumbers = array_filter($item['imei_numbers'] ?? [], function($value) {
+                    return !empty(trim($value));
+                });
+                $serialNumbers = array_filter($item['serial_numbers'] ?? [], function($value) {
+                    return !empty(trim($value));
+                });
+
+                $saleItem = SaleItem::create([
                     'sale_id' => $sale->id,
-                    'product_id' => $item['id'],
+                    'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['price'],
                     'total_price' => $item['price'] * $item['quantity'],
+                    'imei_numbers' => json_encode($imeiNumbers),
+                    'serial_numbers' => json_encode($serialNumbers),
+                ]);
+
+                // Debug: Log the saved data
+                \Log::info('Sale Item Created:', [
+                    'id' => $saleItem->id,
+                    'imei_numbers' => $saleItem->imei_numbers,
+                    'serial_numbers' => $saleItem->serial_numbers
                 ]);
 
                 // Update product stock
-                $product = Product::find($item['id']);
+                $product = Product::find($item['product_id']);
                 $product->decrement('stock_quantity', $item['quantity']);
             }
 
             DB::commit();
-            
+
             session()->flash('message', 'Sale completed successfully! Invoice: ' . $sale->invoice_no);
-            $this->resetForm();
-            
+
+            // Redirect to invoice page
+            return redirect()->route('sales.invoice', $sale->id);
+
         } catch (\Exception $e) {
             DB::rollback();
             session()->flash('error', 'Error processing sale: ' . $e->getMessage());
+            \Log::error('Sale Processing Error:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
         }
     }
 
@@ -140,6 +279,7 @@ class PointOfSale extends Component
         $this->selectedCustomer = null;
         $this->customerName = '';
         $this->customerPhone = '';
+        $this->customerAddress = '';
         $this->paymentMethod = 'cash';
         $this->paidAmount = 0;
         $this->discountAmount = 0;
@@ -152,15 +292,15 @@ class PointOfSale extends Component
         $query = Product::with(['brand', 'category'])
             ->where('status', 'active')
             ->where('stock_quantity', '>', 0);
-            
+
         if ($this->search) {
             $query->where(function($q) {
                 $q->where('name', 'like', '%' . $this->search . '%')
                   ->orWhere('model', 'like', '%' . $this->search . '%')
-                  ->orWhere('imei', 'like', '%' . $this->search . '%');
+                  ->orWhere('sku', 'like', '%' . $this->search . '%');
             });
         }
-        
+
         $products = $query->get();
         $customers = Customer::where('status', 'active')->get();
 

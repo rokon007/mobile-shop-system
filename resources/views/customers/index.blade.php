@@ -38,22 +38,22 @@
                                     <td>{{ $customer->sales_count ?? 0 }}</td>
                                     <td>৳{{ number_format($customer->total_spent ?? 0, 2) }}</td>
                                     <td>
-                                        <span class="badge badge-{{ $customer->status == 'active' ? 'success' : 'danger' }}">
+                                        <span class="badge bg-{{ $customer->status == 'active' ? 'success' : 'danger' }}">
                                             {{ ucfirst($customer->status) }}
                                         </span>
                                     </td>
                                     <td>
                                         <a href="{{ route('customers.show', $customer) }}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-eye"></i>
+                                            <i class="bi bi-eye-fill"></i>
                                         </a>
                                         <a href="{{ route('customers.edit', $customer) }}" class="btn btn-warning btn-sm">
-                                            <i class="fas fa-edit"></i>
+                                            <i class="bi bi-pencil-fill"></i>
                                         </a>
                                         <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
-                                                <i class="fas fa-trash"></i>
+                                                <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </form>
                                     </td>

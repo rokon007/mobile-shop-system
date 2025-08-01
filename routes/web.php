@@ -129,7 +129,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['permission:system-settings'])->group(function () {
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
-        Route::post('/settings/backup', [SettingController::class, 'backup'])->name('settings.backup');
+        //Route::post('/settings/backup', [SettingController::class, 'backup'])->name('settings.backup');
+        Route::match(['get', 'post'], '/settings/backup', [SettingController::class, 'backup'])->name('settings.backup');
         Route::get('/settings/backup/download/{file}', [SettingController::class, 'downloadBackup'])->name('settings.backup.download');
+        Route::delete('/settings/backup/delete/{file}', [SettingController::class, 'deleteBackup'])->name('settings.backup.delete');
     });
 });

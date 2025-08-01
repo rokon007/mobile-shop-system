@@ -16,13 +16,17 @@ class SaleItem extends Model
         'unit_price',
         'total_price',
         'discount_amount',
-        'warranty_info'
+        'warranty_info',
+        'imei_numbers',
+        'serial_numbers'
     ];
 
     protected $casts = [
         'unit_price' => 'decimal:2',
         'total_price' => 'decimal:2',
         'discount_amount' => 'decimal:2',
+        'imei_numbers' => 'array',
+        'serial_numbers' => 'array',
     ];
 
     public function sale()

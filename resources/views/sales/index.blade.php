@@ -1,4 +1,4 @@
-@extends('layouts.app')
+{{-- @extends('layouts.app')
 
 @section('content')
 <div class="">
@@ -180,4 +180,158 @@ function filterSales() {
         <div class="toast-body" id="errorToastMessage"></div>
     </div>
 </div>
+@endsection --}}
+
+@extends('layouts.app')
+
+@section('content')
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">Sales Management</h4>
+                    <div>
+                        <a href="{{ route('pos.index') }}" class="btn btn-success">
+                            <i class="fas fa-cash-register"></i> POS
+                        </a>
+                        {{-- <a href="{{ route('sales.create') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> New Sale
+                        </a> --}}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Search and Filter Section -->
+                    <form method="GET" action="{{ route('sales.index') }}" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <input type="text" name="invoice_search" class="form-control"
+                                       placeholder="Search by Invoice ID"
+                                       value="{{ request('invoice_search') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="date" name="start_date" class="form-control"
+                                       placeholder="Start Date"
+                                       value="{{ request('start_date') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="date" name="end_date" class="form-control"
+                                       placeholder="End Date"
+                                       value="{{ request('end_date') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <select name="customer_id" class="form-control">
+                                    <option value="">All Customers</option>
+                                    @foreach($customers as $customer)
+                                        <option value="{{ $customer->id }}"
+                                                {{ request('customer_id') == $customer->id ? 'selected' : '' }}>
+                                            {{ $customer->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <select name="payment_status" class="form-control">
+                                    <option value="">All Status</option>
+                                    <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                                    <option value="partial" {{ request('payment_status') == 'partial' ? 'selected' : '' }}>Partial</option>
+                                    <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-info"><i class="bi bi-search"></i></button>
+                                    {{-- <button type="button" class="btn btn-info"><i class="bi bi-"></i></button> --}}
+                                    <a href="{{ route('sales.index') }}" class="btn btn-info"><i class="bi bi-hurricane"></i></a>
+                                </div>
+
+
+                                {{-- <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <a href="{{ route('sales.index') }}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i>
+                                </a> --}}
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Invoice ID</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Subtotal</th>
+                                    <th>Tax</th>
+                                    <th>Discount</th>
+                                    <th>Total</th>
+                                    <th>Payment Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($sales as $sale)
+                                <tr>
+                                    <td><strong>{{ $sale->invoice_no }}</strong></td>
+                                    <td>{{ $sale->sale_date->format('d-M-y') }}</td>
+                                    <td>{{ $sale->customer->name ?? $sale->customer_name ?? 'Walk-in Customer' }}</td>
+                                    <td>{{ $sale->items->count() }}</td>
+                                    <td>৳{{ number_format($sale->subtotal, 2) }}</td>
+                                    <td>৳{{ number_format($sale->tax_amount, 2) }}</td>
+                                    <td>৳{{ number_format($sale->discount_amount, 2) }}</td>
+                                    <td>৳{{ number_format($sale->total_amount, 2) }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ $sale->payment_status == 'paid' ? 'success' : ($sale->payment_status == 'partial' ? 'warning' : 'danger') }}">
+                                            {{ ucfirst($sale->payment_status) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3 fs-6">
+                                            <a href="{{ route('sales.show', $sale) }}" class="text-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="View">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </a>
+                                            <a href="{{ route('sales.invoice', $sale) }}" class="text-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Invoice" target="_blank">
+                                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                            </a>
+                                            @if($sale->payment_status != 'paid')
+                                            <a href="{{ route('sales.edit', $sale) }}" class="text-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </a>
+                                            @endif
+                                            <form action="{{ route('sales.destroy', $sale) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-danger border-0 bg-transparent" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete" onclick="return confirm('Are you sure?')">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="10" class="text-center">No sales found</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            Showing {{ $sales->firstItem() ?? 0 }} to {{ $sales->lastItem() ?? 0 }} of {{ $sales->total() }} results
+                        </div>
+                        <div>
+                            {{ $sales->appends(request()->query())->links() }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+

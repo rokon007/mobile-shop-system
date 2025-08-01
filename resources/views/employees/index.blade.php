@@ -7,7 +7,7 @@
     <div class="page-title">
         <h3>Employee Management</h3>
     </div>
-    <div class="page-header-actions">
+    <div class="page-header-actions mb-3">
         <a href="{{ route('employees.create') }}" class="btn btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Add New Employee
@@ -22,7 +22,7 @@
             <form method="GET" class="mb-4">
                 <div class="row">
                     <div class="col-md-4">
-                        <input type="text" class="form-control" name="search" placeholder="Search employees..." 
+                        <input type="text" class="form-control" name="search" placeholder="Search employees..."
                                value="{{ request('search') }}">
                     </div>
                     <div class="col-md-3">
@@ -69,10 +69,10 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     @if($employee->photo)
-                                        <img src="{{ asset('storage/' . $employee->photo) }}" alt="{{ $employee->name }}" 
+                                        <img src="{{ asset('storage/' . $employee->photo) }}" alt="{{ $employee->name }}"
                                              class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
                                     @else
-                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" 
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2"
                                              style="width: 40px; height: 40px;">
                                             {{ substr($employee->name, 0, 1) }}
                                         </div>
@@ -88,9 +88,9 @@
                             <td>{{ $employee->position }}</td>
                             <td>{{ $employee->phone }}</td>
                             <td>৳{{ number_format($employee->salary, 2) }}</td>
-                            <td>{{ $employee->join_date->format('M d, Y') }}</td>
+                            <td>{{ date('d M, y', strtotime($employee->join_date)) }}</td>
                             <td>
-                                <span class="badge badge-{{ $employee->status == 'active' ? 'success' : 'danger' }}">
+                                <span class="badge bg-{{ $employee->status == 'active' ? 'success' : 'danger' }}">
                                     {{ ucfirst($employee->status) }}
                                 </span>
                             </td>
