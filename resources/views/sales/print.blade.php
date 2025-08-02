@@ -243,11 +243,11 @@
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
         // Auto-print when page loads (optional)
-        window.onload = function() {
-            setTimeout(function() {
-                window.print();
-            }, 500);
-        };
+       // window.onload = function() {
+           // setTimeout(function() {
+               // window.print();
+           // }, 500);
+       // };
 
         // Close window after printing (optional)
         window.onafterprint = function() {
