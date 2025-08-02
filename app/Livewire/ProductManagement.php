@@ -35,6 +35,7 @@ class ProductManagement extends Component
     public $warranty_months = 0;
     public $status = 'active';
     public $sortField;
+    public $sku;
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -85,7 +86,7 @@ class ProductManagement extends Component
         $this->serial_number = $product->serial_number;
         $this->warranty_months = $product->warranty_months;
         $this->status = $product->status;
-
+        $this->sku=$product->sku;
         $this->showModal = true;
         $this->editMode = true;
     }
@@ -107,6 +108,7 @@ class ProductManagement extends Component
             'min_stock_alert' => $this->min_stock_alert,
             'imei' => $this->imei,
             'serial_number' => $this->serial_number,
+            'sku'=>$this->sku,
             'warranty_months' => $this->warranty_months,
             'status' => $this->status,
         ];
@@ -145,6 +147,7 @@ class ProductManagement extends Component
         $this->warranty_months = 0;
         $this->status = 'active';
         $this->productId = null;
+        $this->sku='';
     }
 
     public function render()

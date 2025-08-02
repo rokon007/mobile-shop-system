@@ -569,16 +569,22 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">IMEI Number</label>
                                         <input type="text" class="form-control" wire:model="imei">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Serial Number</label>
                                         <input type="text" class="form-control" wire:model="serial_number">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">SKU</label>
+                                        <input type="text" class="form-control" wire:model="sku">
                                     </div>
                                 </div>
                             </div>
