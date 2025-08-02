@@ -583,8 +583,9 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label class="form-label">SKU</label>
+                                        <label class="form-label">SKU *</label>
                                         <input type="text" class="form-control" wire:model="sku">
+                                        @error('sku') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                 </div>
                             </div>

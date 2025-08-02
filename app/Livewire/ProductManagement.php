@@ -45,6 +45,7 @@ class ProductManagement extends Component
         'selling_price' => 'required|numeric|min:0',
         'stock_quantity' => 'required|integer|min:0',
         'min_stock_alert' => 'required|integer|min:1',
+        'sku'=>'required',
     ];
 
     public function updatingSearch()
