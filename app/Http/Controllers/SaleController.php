@@ -177,9 +177,10 @@ class SaleController extends Controller
         $sale->load(['customer', 'items.product.brand', 'items.product.category', 'createdBy']);
         $settings = $this->getShopSettings();
 
-        $pdf = Pdf::loadView('sales.print', compact('sale', 'settings'));
+        // $pdf = Pdf::loadView('sales.print', compact('sale', 'settings'));
 
-        return $pdf->download('invoice-' . $sale->invoice_no . '.pdf');
+        // return $pdf->download('invoice-' . $sale->invoice_no . '.pdf');
+        return view('sales.print', compact('sale', 'settings'));
     }
 
     public function payment(Request $request, Sale $sale)
