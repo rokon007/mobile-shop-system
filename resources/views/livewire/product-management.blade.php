@@ -490,7 +490,7 @@
                                     <div class="mb-3">
                                         <label class="form-label">Product Name *</label>
                                         <input type="text" class="form-control @error('name') is-invalid @enderror" wire:model="name">
-                                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        @error('name') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -502,7 +502,7 @@
                                                 <option value="{{ $brand->id }}">{{ $brand->name }}</option>
                                             @endforeach
                                         </select>
-                                        @error('brand_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        @error('brand_id') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
                             </div>
@@ -517,7 +517,7 @@
                                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                                             @endforeach
                                         </select>
-                                        @error('category_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        @error('category_id') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -533,14 +533,14 @@
                                     <div class="mb-3">
                                         <label class="form-label">Purchase Price *</label>
                                         <input type="number" step="0.01" class="form-control @error('purchase_price') is-invalid @enderror" wire:model="purchase_price">
-                                        @error('purchase_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        @error('purchase_price') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Selling Price *</label>
                                         <input type="number" step="0.01" class="form-control @error('selling_price') is-invalid @enderror" wire:model="selling_price">
-                                        @error('selling_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        @error('selling_price') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
                             </div>
@@ -550,14 +550,14 @@
                                     <div class="mb-3">
                                         <label class="form-label">Stock Quantity *</label>
                                         <input type="number" class="form-control @error('stock_quantity') is-invalid @enderror" wire:model="stock_quantity">
-                                        @error('stock_quantity') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        @error('stock_quantity') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Min Stock Alert *</label>
                                         <input type="number" class="form-control @error('min_stock_alert') is-invalid @enderror" wire:model="min_stock_alert">
-                                        @error('min_stock_alert') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        @error('min_stock_alert') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
                                 <div class="col-md-4">
@@ -585,7 +585,7 @@
                                     <div class="mb-3">
                                         <label class="form-label">SKU *</label>
                                         <input type="text" class="form-control" wire:model="sku">
-                                        @error('sku') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        @error('sku') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
                             </div>
