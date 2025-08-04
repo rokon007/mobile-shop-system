@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\SystemSetting;
+use App\Models\Inventory;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 
@@ -28,39 +29,96 @@ class PointOfSale extends Component
     public $imeiNumbers = [];
     public $serialNumbers = [];
 
-    public function addToCart($productId)
-    {
-        $product = Product::find($productId);
+    // public function addToCart($productId)
+    // {
+    //     $product = Product::find($productId);
 
-        if (!$product || $product->stock_quantity <= 0) {
+    //     if (!$product || $product->stock_quantity <= 0) {
+    //         session()->flash('error', 'Product not available!');
+    //         return;
+    //     }
+
+    //     $existingIndex = collect($this->cart)->search(function ($item) use ($productId) {
+    //         return $item['product_id'] == $productId;
+    //     });
+
+    //     if ($existingIndex !== false) {
+    //         if ($this->cart[$existingIndex]['quantity'] >= $product->stock_quantity) {
+    //             session()->flash('error', 'Insufficient stock!');
+    //             return;
+    //         }
+    //         $this->cart[$existingIndex]['quantity']++;
+
+    //         // Add empty IMEI/Serial for new quantity
+    //         // $newIndex = $this->cart[$existingIndex]['quantity'] - 1;
+    //         // $this->cart[$existingIndex]['imei_numbers'][$newIndex] = '';
+    //         // $this->cart[$existingIndex]['serial_numbers'][$newIndex] = '';
+    //     } else {
+    //         $this->cart[] = [
+    //             'product_id' => $product->id,
+    //             'name' => $product->name,
+    //             'price' => $product->selling_price,
+    //             'quantity' => 1,
+    //             'stock' => $product->stock_quantity,
+    //             'imei_numbers' => [''],
+    //             'serial_numbers' => ['']
+    //         ];
+    //     }
+    // }
+
+    public function addToCart($inventoryId) // Changed parameter to accept inventory ID
+    {
+        $inventory = Inventory::with('product')->find($inventoryId);
+
+        if (!$inventory || !$inventory->product || $inventory->quantity <= 0) {
             session()->flash('error', 'Product not available!');
             return;
         }
 
-        $existingIndex = collect($this->cart)->search(function ($item) use ($productId) {
-            return $item['product_id'] == $productId;
+        $product = $inventory->product;
+        $existingIndex = collect($this->cart)->search(function ($item) use ($inventoryId) {
+            return $item['inventory_id'] == $inventoryId; // Changed to check inventory_id
         });
 
+        $attributes = json_decode($inventory->attribute_combination, true) ?? [];
+
+        // Get human-readable attribute values
+        $attributeDisplay = [];
+        foreach ($attributes as $filterId => $optionId) {
+            $filter = \App\Models\Filter::find($filterId);
+            $option = \App\Models\FilterOption::find($optionId);
+
+            if ($filter && $option) {
+                $attributeDisplay[$filter->name] = $option->value;
+            }
+        }
+
         if ($existingIndex !== false) {
-            if ($this->cart[$existingIndex]['quantity'] >= $product->stock_quantity) {
-                session()->flash('error', 'Insufficient stock!');
+            if ($this->cart[$existingIndex]['quantity'] >= $inventory->quantity) {
+                session()->flash('error', 'Insufficient stock for this item!');
                 return;
             }
             $this->cart[$existingIndex]['quantity']++;
 
-            // Add empty IMEI/Serial for new quantity
-            $newIndex = $this->cart[$existingIndex]['quantity'] - 1;
-            $this->cart[$existingIndex]['imei_numbers'][$newIndex] = '';
-            $this->cart[$existingIndex]['serial_numbers'][$newIndex] = '';
+            // Add the IMEI/serial for the new quantity
+            $this->cart[$existingIndex]['imei_numbers'][] = $inventory->imei;
+            $this->cart[$existingIndex]['serial_numbers'][] = $inventory->serial_number;
         } else {
             $this->cart[] = [
+                'inventory_id' => $inventory->id, // Added inventory ID
                 'product_id' => $product->id,
                 'name' => $product->name,
-                'price' => $product->selling_price,
+                'price' => $inventory->selling_price, // Use inventory price if different
                 'quantity' => 1,
-                'stock' => $product->stock_quantity,
-                'imei_numbers' => [''],
-                'serial_numbers' => ['']
+                'stock' => $inventory->quantity, // Use inventory stock
+                // 'imei_numbers' => [$inventory->imei], // Add actual IMEI
+                // 'serial_numbers' => [$inventory->serial_number], // Add actual serial
+                // 'attributes' => json_decode($inventory->attribute_combination, true) ?? [] // Add attributes
+
+                'imei_numbers' => [$inventory->imei],
+                'serial_numbers' => [$inventory->serial_number],
+                'attributes' => $attributeDisplay, // Add formatted attributes
+                'raw_attributes' => $attributes // Keep original for reference
             ];
         }
     }
@@ -287,23 +345,53 @@ class PointOfSale extends Component
         $this->note = '';
     }
 
+    // public function render()
+    // {
+    //     $query = Product::with(['brand', 'category'])
+    //         ->where('status', 'active')
+    //         ->where('stock_quantity', '>', 0);
+
+    //     if ($this->search) {
+    //         $query->where(function($q) {
+    //             $q->where('name', 'like', '%' . $this->search . '%')
+    //               ->orWhere('model', 'like', '%' . $this->search . '%')
+    //               ->orWhere('sku', 'like', '%' . $this->search . '%');
+    //         });
+    //     }
+
+    //     $products = $query->get();
+    //     $customers = Customer::where('status', 'active')->get();
+
+    //     return view('livewire.point-of-sale', compact('products', 'customers'));
+    // }
+
     public function render()
     {
-        $query = Product::with(['brand', 'category'])
-            ->where('status', 'active')
-            ->where('stock_quantity', '>', 0);
+        $query = Inventory::with(['product' => function($query) {
+                $query->with(['brand', 'category'])
+                    ->where('status', 'active');
+            }])
+            ->whereHas('product', function($q) {
+                $q->where('status', 'active');
+            });
 
         if ($this->search) {
             $query->where(function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('model', 'like', '%' . $this->search . '%')
-                  ->orWhere('sku', 'like', '%' . $this->search . '%');
+                $q->whereHas('product', function($productQuery) {
+                    $productQuery->where('name', 'like', '%' . $this->search . '%')
+                            ->orWhere('model', 'like', '%' . $this->search . '%');
+                })
+                ->orWhere('imei', 'like', '%' . $this->search . '%')
+                ->orWhere('serial_number', 'like', '%' . $this->search . '%');
             });
         }
 
-        $products = $query->get();
+        $inventories = $query->latest()->paginate(10);
         $customers = Customer::where('status', 'active')->get();
 
-        return view('livewire.point-of-sale', compact('products', 'customers'));
+        return view('livewire.point-of-sale', [
+            'inventories' => $inventories,
+            'customers' => $customers
+        ]);
     }
 }

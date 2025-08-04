@@ -40,6 +40,11 @@ class Category extends Model
         return $this->hasMany(Product::class);
     }
 
+    public function filters()
+    {
+        return $this->hasMany(Filter::class);
+    }
+
     // Scope for active categories
     public function scopeActive($query)
     {

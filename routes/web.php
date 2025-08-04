@@ -22,6 +22,8 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ProfileController;
+use App\Livewire\Filter\CategoryFilterComponent;
+use App\Livewire\Filter\InventoryManagementComponent;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +58,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('products', ProductController::class);
         Route::resource('brands', BrandController::class);
         Route::resource('categories', CategoryController::class);
+        Route::get('/category-filter/{slug}', CategoryFilterComponent::class)->name('category_filter');
+        Route::get('/products/inventory/{id}', InventoryManagementComponent::class)->name('product_inventory');
     });
 
     // Purchase Management

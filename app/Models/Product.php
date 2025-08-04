@@ -49,6 +49,20 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    // public function attributes()
+    // {
+    //     return $this->hasMany(ProductAttribute::class);
+    // }
+
+    public function inventory()
+    {
+        return $this->hasOne(Inventory::class);
+    }
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class);
+    }
+
     public function serials()
     {
         return $this->hasMany(ProductSerial::class);

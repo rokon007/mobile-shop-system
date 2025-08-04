@@ -98,7 +98,37 @@
                                     @foreach($sale->items as $index => $item)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-                                        <td>{{ $item->product->name }}</td>
+                                        <td>{{ $item->product->name }}<br>
+
+                                             <div class="item-attributes">
+                                                @php
+                                                    // Get attributes from sale item's attribute_data if available
+                                                    $attributes = json_decode($item->attribute_data, true) ?? [];
+
+                                                    // Fallback to inventory attributes if not in sale item
+                                                    if (empty($attributes) && $item->product->inventory) {
+                                                        $attributes = json_decode($item->product->inventory->attribute_combination, true) ?? [];
+                                                    }
+
+                                                    // Convert to human-readable format if needed
+                                                    $displayAttributes = [];
+                                                    foreach ($attributes as $filterId => $optionId) {
+                                                        $filter = App\Models\Filter::find($filterId);
+                                                        $option = App\Models\FilterOption::find($optionId);
+                                                        if ($filter && $option) {
+                                                            $displayAttributes[$filter->name] = $option->value;
+                                                        }
+                                                    }
+                                                @endphp
+
+                                                @foreach($displayAttributes as $name => $value)
+                                                    <small class="text-muted">
+                                                        {{ $name }}: <strong>{{ $value }}</strong>
+                                                    </small>,
+                                                @endforeach
+                                            </div>
+
+                                        </td>
                                         <td>{{ $item->product->brand->name ?? 'N/A' }}</td>
                                         <td>{{ $item->product->model ?? 'N/A' }}</td>
                                         <td>
@@ -107,16 +137,16 @@
                                                 $serialNumbers = json_decode($item->serial_numbers, true) ?? [];
                                             @endphp
                                             @if(!empty($imeiNumbers) && array_filter($imeiNumbers))
-                                                <small><strong>IMEI:</strong><br>
-                                                @foreach(array_filter($imeiNumbers) as $imei)
-                                                    {{ $imei }}<br>
-                                                @endforeach
+                                                <small>
+                                                    @foreach(array_filter($imeiNumbers) as $imei)
+                                                        <strong>IMEI: </strong>{{ $imei }}
+                                                    @endforeach
                                                 </small>
                                             @endif
                                             @if(!empty($serialNumbers) && array_filter($serialNumbers))
-                                                <small><strong>Serial:</strong><br>
+                                                <small>
                                                 @foreach(array_filter($serialNumbers) as $serial)
-                                                    {{ $serial }}<br>
+                                                    <strong>SL: </strong>{{ $serial }}
                                                 @endforeach
                                                 </small>
                                             @endif

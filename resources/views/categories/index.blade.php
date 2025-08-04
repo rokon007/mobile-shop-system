@@ -67,6 +67,15 @@
                                     </td> --}}
                                      <td>
                                     <div class="btn-list flex-nowrap">
+                                        <a style="cursor: pointer;"
+                                        href="{{ route('category_filter', ['slug' => $category->parent ? $category->slug : ($category->parent ? $category->parent->slug : $category->slug)]) }}"
+                                        class="text-warning"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="bottom"
+                                        title="Filter"
+                                        aria-label="Filter">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
                                         <a href="{{ route('categories.show', $category) }}" class="btn btn-sm btn-icon" aria-label="View">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>

@@ -19,7 +19,7 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Products Section -->
-            <div class="col-xl-6 col-lg-6">
+            <div class="col-xl-7 col-lg-7">
                 <div class="card shadow-none bg-light border">
                     <div class="card-header">
                         <div class="row">
@@ -40,32 +40,71 @@
 
                     <div class="card-body shadow-none bg-light border">
                         <div class="row">
-                            @foreach($products as $product)
-                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3">
-                                <div class="card h-100 product-card" wire:click="addToCart({{ $product->id }})">
-                                    <div class="product-ribbon ribbon ribbon-primary" style="{{ $product->stock_quantity <= $product->min_stock_alert ? 'display: block;' : 'display: none;' }}">
-                                        <span>Low Stock</span>
-                                    </div>
-                                    <div class="card-body text-center">
-                                        <h6 class="mt-2 mb-1">{{ $product->name }}</h6>
-                                        <p class="mb-1">
-                                            <small class="text-muted">{{ $product->brand->name ?? 'N/A' }} - {{ $product->category->name ?? 'N/A' }}</small>
-                                        </p>
-                                        <div class="mb-1">
-                                            <strong class="text-primary">৳{{ number_format($product->selling_price, 2) }}</strong>
-                                        </div>
-                                        <div class="stock-info">
-                                            <span class="badge bg-{{ $product->stock_quantity <= $product->min_stock_alert ? 'danger' : 'success' }}">
-                                                Stock: {{ $product->stock_quantity }}
-                                            </span>
+                            @foreach($inventories as $inventory)
+                                @php
+                                    $attributes = json_decode($inventory->attribute_combination, true) ?? [];
+                                    $stockCount = $inventory->quantity ?? 0; // Changed from count() to quantity
+                                @endphp
+
+                                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 mb-3">
+                                    <div class="card h-100 product-card" wire:click="addToCart({{ $inventory->id }})">
+                                        @if($stockCount <= 3)
+                                            <div class="product-ribbon ribbon ribbon-primary">
+                                                <span>Low Stock</span>
+                                            </div>
+                                        @endif
+
+                                        <div class="card-body text-center">
+                                            <h6 class="mt-2 mb-1">{{ $inventory->product->name }}</h6>
+                                            <p class="mb-1">
+                                                <small class="text-muted">
+                                                    {{ $inventory->product->brand->name ?? 'N/A' }} -
+                                                    {{ $inventory->product->category->name ?? 'N/A' }}
+                                                </small>
+                                            </p>
+
+                                            @if($inventory->imei)
+                                                <div class="mb-1">
+                                                    <strong style="font-size: 11px;" class="text-dark">IMEI: {{ $inventory->imei }}</strong>
+                                                </div>
+                                            @endif
+                                            @if($inventory->serial_number)
+                                                <div class="mb-1">
+                                                    <strong style="font-size: 11px;" class="text-dark">SL: {{ $inventory->serial_number }}</strong>
+                                                </div>
+                                            @endif
+
+                                            @foreach($attributes as $key => $value)
+                                                @php
+                                                    $filter = App\Models\Filter::find($key);
+                                                    $optionValue = App\Models\FilterOption::find($value);
+                                                @endphp
+
+                                                @if($filter && $optionValue)
+                                                     <small class="text-muted">
+                                                        <strong style="font-size: 11px;" class="text-dark">
+                                                            {{ $filter->name }}: {{ $optionValue->value }}&nbsp;
+                                                        </strong>
+                                                    </small>
+                                                @endif
+                                            @endforeach
+
+                                            <div class="mb-1">
+                                                <strong class="text-primary">৳{{ number_format($inventory->selling_price, 2) }}</strong>
+                                            </div>
+
+                                            <div class="stock-info">
+                                                <span class="badge bg-{{ $stockCount <= 3 ? 'danger' : 'success' }}">
+                                                    Stock: {{ $stockCount }}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                             @endforeach
                         </div>
 
-                        @if(count($products) === 0)
+                        @if(count($inventories) === 0)
                         <div class="text-center py-4">
                             <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
                             <h5 class="mt-3 text-muted">No products found</h5>
@@ -77,7 +116,7 @@
             </div>
 
             <!-- Cart Section - Made wider -->
-            <div class="col-xl-6 col-lg-6">
+            <div class="col-xl-5 col-lg-5">
                 <div class="card cart-card">
                     <div class="card-header bg-primary">
                         <h5 class="text-white mb-0">Shopping Cart</h5>
@@ -100,13 +139,13 @@
                             <div class="mt-2">
                                 <small class="text-muted">Or add new customer:</small>
                                 <div class="row g-2 mt-2">
-                                    <div class="col-12">
+                                    <div class="col-6">
                                         <input type="text" class="form-control form-control-sm" placeholder="Customer Name" wire:model="customerName">
                                     </div>
                                     <div class="col-6">
                                         <input type="text" class="form-control form-control-sm" placeholder="Phone" wire:model="customerPhone">
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-12">
                                         <input type="text" class="form-control form-control-sm" placeholder="Address" wire:model="customerAddress">
                                     </div>
                                 </div>
@@ -124,27 +163,30 @@
                                             <tr class="cart-item">
                                                 <td style="width: 40%">
                                                     <h6 class="mb-1 mt-2">{{ $item['name'] }}</h6>
-                                                    <small class="text-muted">৳{{ number_format($item['price'], 2) }} each</small>
+                                                    <small class="text-muted"><strong>৳{{ number_format($item['price'], 2) }}</strong></small><br>
+                                                    @if(!empty($item['imei_numbers'][0]))
+                                                        <small class="text-muted"><strong>IMEI: {{ $item['imei_numbers'][0] }}</strong></small>
+                                                    @endif
+                                                     @if(!empty($item['serial_numbers'][0]))
+                                                        <small class="text-muted">SL: <strong>{{ $item['serial_numbers'][0] }}</strong></small>
+                                                     @endif
                                                 </td>
                                                 <td class="text-center" style="width: 30%">
-                                                    <div class="input-group input-group-sm mt-2">
-                                                        <button class="btn btn-outline-secondary" type="button"
-                                                                wire:click="updateQuantity({{ $index }}, {{ $item['quantity'] - 1 }})">-</button>
-                                                        <input type="text" class="form-control text-center" value="{{ $item['quantity'] }}" readonly>
-                                                        <button class="btn btn-outline-secondary" type="button"
-                                                                wire:click="updateQuantity({{ $index }}, {{ $item['quantity'] + 1 }})">+</button>
-                                                    </div>
-                                                    <!-- Added IMEI/Serial button here -->
-                                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2 mb-2 w-100"
-                                                            wire:click="openImeiModal({{ $index }})">
-                                                        <i class="fa fa-barcode me-1"></i> IMEI/Serial
-                                                    </button>
+                                                    @if(!empty($item['attributes']))
+                                                        <div class="item-attributes">
+                                                            @foreach($item['attributes'] as $name => $value)
+                                                                <small class="text-muted">
+                                                                    {{ $name }}: <strong>{{ $value }}</strong>
+                                                                </small><br>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
                                                 </td>
-                                                <td class="text-end" style="width: 20%">
+                                                {{--<td class="text-end" style="width: 20%">
                                                     <div class="mt-2">
                                                         <strong>৳{{ number_format($item['price'] * $item['quantity'], 2) }}</strong>
                                                     </div>
-                                                </td>
+                                                </td> --}}
                                                 <td class="text-end" style="width: 10%">
                                                     <button type="button" class="btn btn-xs btn-outline-danger mt-2"
                                                             wire:click="removeFromCart({{ $index }})">
@@ -152,15 +194,7 @@
                                                     </button>
                                                 </td>
                                             </tr>
-                                            @if(!empty($item['imei_numbers']) && array_filter($item['imei_numbers']))
-                                            <tr>
-                                                <td colspan="4" class="p-0">
-                                                    <div class="alert alert-success py-1 px-2 mb-0">
-                                                        <small><i class="fa fa-check-circle"></i> IMEI/Serial Added</small>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endif
+
                                             @endforeach
                                         </tbody>
                                     </table>
@@ -333,6 +367,22 @@
             border: 1px solid #ced4da;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
+        }
+
+        /* .cart-item {
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        } */
+        .item-attributes {
+            margin: 5px 0;
+            padding: 5px;
+            background: #f9f9f9;
+            border-radius: 3px;
+        }
+        .item-specs {
+            margin-top: 5px;
         }
 
         .cart-item:hover {

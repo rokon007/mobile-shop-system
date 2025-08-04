@@ -41,11 +41,11 @@ class ProductManagement extends Component
         'name' => 'required|string|max:255',
         'brand_id' => 'required|exists:brands,id',
         'category_id' => 'required|exists:categories,id',
-        'purchase_price' => 'required|numeric|min:0',
-        'selling_price' => 'required|numeric|min:0',
-        'stock_quantity' => 'required|integer|min:0',
-        'min_stock_alert' => 'required|integer|min:1',
-        'sku'=>'required',
+        //'purchase_price' => 'required|numeric|min:0',
+        //'selling_price' => 'required|numeric|min:0',
+        //'stock_quantity' => 'required|integer|min:0',
+       // 'min_stock_alert' => 'required|integer|min:1',
+        //'sku'=>'required',
     ];
 
     public function updatingSearch()
@@ -103,14 +103,14 @@ class ProductManagement extends Component
             'category_id' => $this->category_id,
             'model' => $this->model,
             'description' => $this->description,
-            'purchase_price' => $this->purchase_price,
-            'selling_price' => $this->selling_price,
-            'stock_quantity' => $this->stock_quantity,
-            'min_stock_alert' => $this->min_stock_alert,
-            'imei' => $this->imei,
-            'serial_number' => $this->serial_number,
-            'sku'=>$this->sku,
-            'warranty_months' => $this->warranty_months,
+            //'purchase_price' => $this->purchase_price,
+            //'selling_price' => $this->selling_price,
+            //'stock_quantity' => $this->stock_quantity,
+           // 'min_stock_alert' => $this->min_stock_alert,
+           // 'imei' => $this->imei,
+            //'serial_number' => $this->serial_number,
+           // 'sku'=>$this->sku,
+            //'warranty_months' => $this->warranty_months,
             'status' => $this->status,
         ];
 
@@ -151,15 +151,47 @@ class ProductManagement extends Component
         $this->sku='';
     }
 
+    // public function render()
+    // {
+    //    // $query = Product::with(['brand', 'category']);
+    //    $query = Product::with(['category', 'brand', 'inventories', 'brand']);
+
+    //     if ($this->search) {
+    //         $query->where('name', 'like', '%' . $this->search . '%')
+    //               ->orWhere('model', 'like', '%' . $this->search . '%')
+    //               ->orWhere('inventories->imei', 'like', '%' . $this->search . '%');
+    //     }
+
+    //     if ($this->selectedBrand) {
+    //         $query->where('brand_id', $this->selectedBrand);
+    //     }
+
+    //     if ($this->selectedCategory) {
+    //         $query->where('category_id', $this->selectedCategory);
+    //     }
+
+    //     $products = $query->latest()->paginate(10);
+    //     $brands = Brand::where('status', 'active')->get();
+    //     $categories = Category::where('status', 'active')->get();
+
+    //     return view('livewire.product-management', compact('products', 'brands', 'categories'));
+    // }
+
     public function render()
     {
-        $query = Product::with(['brand', 'category']);
+        $query = Product::with(['category', 'brand', 'inventories']);
 
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('model', 'like', '%' . $this->search . '%')
-                  ->orWhere('imei', 'like', '%' . $this->search . '%');
-        }
+        $query->where(function($q) {
+            $q->where('name', 'like', '%' . $this->search . '%')
+              ->orWhere('model', 'like', '%' . $this->search . '%')
+              ->orWhere('sku', 'like', '%' . $this->search . '%')
+              ->orWhereHas('inventories', function($q) {
+                  $q->where('imei', 'like', '%' . $this->search . '%')
+                    ->orWhere('serial_number', 'like', '%' . $this->search . '%');
+              });
+        });
+    }
 
         if ($this->selectedBrand) {
             $query->where('brand_id', $this->selectedBrand);
@@ -173,6 +205,10 @@ class ProductManagement extends Component
         $brands = Brand::where('status', 'active')->get();
         $categories = Category::where('status', 'active')->get();
 
-        return view('livewire.product-management', compact('products', 'brands', 'categories'));
+        return view('livewire.product-management', [
+            'products' => $products,
+            'brands' => $brands,
+            'categories' => $categories
+        ]);
     }
 }

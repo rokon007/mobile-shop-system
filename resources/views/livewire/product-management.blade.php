@@ -338,7 +338,6 @@
                             <th wire:click="sortBy('name')" class="cursor-pointer">Product</th>
                             <th>Brand</th>
                             <th>Category</th>
-                            <th class="text-end">Prices</th>
                             <th class="text-end">Stock</th>
                             <th>Status</th>
                             <th class="w-1">Actions</th>
@@ -346,6 +345,9 @@
                     </thead>
                     <tbody>
                         @forelse($products as $product)
+                            @php
+                                $stock=$product->inventories->count()
+                            @endphp
                         <tr>
                             <td class="text-muted">{{ $product->id }}</td>
                             <td>
@@ -353,13 +355,11 @@
                                     <span class="avatar avatar-sm me-2" style="background-image: url({{ $product->image_url ?? asset('static/product-placeholder.jpg') }})"></span>
                                     <div>
                                         <div>{{ $product->name }}</div>
-                                        <div class="text-muted text-small">
-                                            @if($product->imei)
-                                                IMEI: {{ $product->imei }}
-                                            @elseif($product->model)
+                                         @if($product->model)
+                                            <div class="text-muted text-small">
                                                 Model: {{ $product->model }}
-                                            @endif
-                                        </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
@@ -369,12 +369,9 @@
                             <td>
                                 <span class="badge bg-info">{{ $product->category->name }}</span>
                             </td>
+
                             <td class="text-end">
-                                <div class="text-success">৳{{ number_format($product->selling_price, 2) }}</div>
-                                <div class="text-muted text-small">৳{{ number_format($product->purchase_price, 2) }}</div>
-                            </td>
-                            <td class="text-end">
-                                @if($product->stock_quantity <= $product->min_stock_alert)
+                                @if($stock <= 3)
                                     <span class="badge bg-danger">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-circle" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -382,10 +379,10 @@
                                             <line x1="12" y1="8" x2="12" y2="12" />
                                             <line x1="12" y1="16" x2="12.01" y2="16" />
                                         </svg>
-                                        {{ $product->stock_quantity }}
+                                        {{ $stock }}
                                     </span>
                                 @else
-                                    <span class="badge bg-success">{{ $product->stock_quantity }}</span>
+                                    <span class="badge bg-success">{{ $stock }}</span>
                                 @endif
                             </td>
                             <td>
@@ -399,13 +396,24 @@
                                     $status = strtolower($product->status);
                                     $color = $statusColorMap[$status] ?? 'gray';
                                 @endphp
-                                <span class="badge bg-{{ $color }}">
-                                    <span class="badge-dot bg-{{ $color }}"></span>
-                                    {{ ucfirst($product->status) }}
-                                </span>
+                                @if($stock==0)
+                                    <span class="badge bg-warning text-dark">
+                                        <span class="badge-dot bg-dark"></span>
+                                        Inventory Not Set !
+                                    </span>
+                                @endif
+                                    <span class="badge bg-{{ $color }}">
+                                        <span class="badge-dot bg-{{ $color }}"></span>
+                                        {{ ucfirst($product->status) }}
+                                    </span>
+
                             </td>
                             <td>
                                 <div class="btn-list flex-nowrap">
+                                    <a href="{{ route('product_inventory', ['id' => $product->id]) }}" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Manage Inventory">
+                                        <i class="bi bi-backpack"></i>
+                                        Add Inventory
+                                    </a>
                                     <button wire:click="edit({{ $product->id }})" class="btn btn-sm btn-icon" aria-label="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -528,7 +536,7 @@
                                 </div>
                             </div>
 
-                            <div class="row">
+                            {{-- <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Purchase Price *</label>
@@ -543,9 +551,9 @@
                                         @error('selling_price') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
-                            <div class="row">
+                            {{-- <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Stock Quantity *</label>
@@ -566,9 +574,9 @@
                                         <input type="number" class="form-control" wire:model="warranty_months">
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
-                            <div class="row">
+                            {{-- <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">IMEI Number</label>
@@ -588,7 +596,7 @@
                                         @error('sku') <small class="text-danger">{{ $message }}</small> @enderror
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <div class="mb-3">
                                 <label class="form-label">Description</label>

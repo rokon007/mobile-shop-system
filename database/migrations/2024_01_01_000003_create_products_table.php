@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->string('sku')->unique();
+            $table->string('sku')->nullable()->unique();
             $table->string('barcode')->nullable()->unique();
             $table->foreignId('brand_id')->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('imei')->nullable()->unique();
             $table->string('serial_number')->nullable();
             $table->text('description')->nullable();
-            $table->decimal('purchase_price', 15, 2);
-            $table->decimal('selling_price', 15, 2);
+            $table->decimal('purchase_price', 15, 2)->nullable();
+            $table->decimal('selling_price', 15, 2)->nullable();
             $table->decimal('wholesale_price', 15, 2)->nullable();
             $table->integer('stock_quantity')->default(0);
             $table->integer('min_stock_alert')->default(5);

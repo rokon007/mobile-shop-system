@@ -166,7 +166,7 @@ class SaleController extends Controller
 
     public function invoice(Sale $sale)
     {
-        $sale->load(['customer', 'items.product.brand', 'items.product.category', 'createdBy']);
+        $sale->load(['customer', 'items.product.brand', 'items.product.category','items.product.inventory' ,'createdBy']);
         $settings = $this->getShopSettings();
 
         return view('sales.invoice', compact('sale', 'settings'));
@@ -174,7 +174,7 @@ class SaleController extends Controller
 
     public function print(Sale $sale)
     {
-        $sale->load(['customer', 'items.product.brand', 'items.product.category', 'createdBy']);
+        $sale->load(['customer', 'items.product.brand', 'items.product.category','items.product.inventory' ,'createdBy']);
         $settings = $this->getShopSettings();
 
         // $pdf = Pdf::loadView('sales.print', compact('sale', 'settings'));

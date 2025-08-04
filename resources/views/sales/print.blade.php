@@ -35,13 +35,17 @@
                 bottom: 0;
                 width: 100%;
             }
+            .watermark {
+                display: block !important;
+            }
         }
         .invoice-container {
-            max-width: 800px;
+            /* max-width: 800px; */
             margin: 0 auto;
             padding: 20px;
             border: 1px solid #ddd;
             background: white;
+            position: relative;
         }
         .invoice-header img {
             max-height: 60px;
@@ -63,10 +67,42 @@
         font-size: 60%;
         font-weight: 400;
         }
+        .watermark {
+            position: fixed;
+            opacity: 0.1;
+            z-index: -1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 120px;
+            color: #7367f0;
+            font-weight: bold;
+            pointer-events: none;
+            display: none;
+        }
+        .watermark-image {
+            position: fixed;
+            opacity: 0.08;
+            z-index: -1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            max-width: 60%;
+            max-height: 60%;
+            pointer-events: none;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container invoice-container">
+        <!-- Watermark -->
+        @if($settings['shop_logo'])
+        <img src="{{ asset('storage/app/public/' . $logoPath) }}" class="watermark-image" alt="Watermark">
+        @else
+        <div class="watermark">{{ $settings['shop_name'] ?? 'Mobile Shop' }}</div>
+        @endif
+
         <!-- Print Button (Hidden when printing) -->
         <div class="text-center mb-3 no-print">
             <button onclick="window.print()" class="btn btn-primary">
@@ -152,7 +188,35 @@
                         @foreach($sale->items as $index => $item)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td>{{ $item->product->name }}</td>
+                            <td>{{ $item->product->name }}<br>
+                                    <div class="item-attributes">
+                                    @php
+                                        // Get attributes from sale item's attribute_data if available
+                                        $attributes = json_decode($item->attribute_data, true) ?? [];
+
+                                        // Fallback to inventory attributes if not in sale item
+                                        if (empty($attributes) && $item->product->inventory) {
+                                            $attributes = json_decode($item->product->inventory->attribute_combination, true) ?? [];
+                                        }
+
+                                        // Convert to human-readable format if needed
+                                        $displayAttributes = [];
+                                        foreach ($attributes as $filterId => $optionId) {
+                                            $filter = App\Models\Filter::find($filterId);
+                                            $option = App\Models\FilterOption::find($optionId);
+                                            if ($filter && $option) {
+                                                $displayAttributes[$filter->name] = $option->value;
+                                            }
+                                        }
+                                    @endphp
+
+                                    @foreach($displayAttributes as $name => $value)
+                                        <small class="text-muted">
+                                            {{ $name }}: <strong>{{ $value }}</strong>
+                                        </small>,
+                                    @endforeach
+                                </div>
+                            </td>
                             <td>{{ $item->product->brand->name ?? 'N/A' }}</td>
                             <td>{{ $item->product->model ?? 'N/A' }}</td>
                             <td class="small">
@@ -161,15 +225,14 @@
                                     $serialNumbers = json_decode($item->serial_numbers, true) ?? [];
                                 @endphp
                                 @if(!empty($imeiNumbers) && array_filter($imeiNumbers))
-                                    <strong>IMEI:</strong><br>
                                     @foreach(array_filter($imeiNumbers) as $imei)
-                                        {{ $imei }}<br>
+                                        <strong>IMEI: </strong>{{ $imei }}
                                     @endforeach
                                 @endif
                                 @if(!empty($serialNumbers) && array_filter($serialNumbers))
-                                    <strong>Serial:</strong><br>
+
                                     @foreach(array_filter($serialNumbers) as $serial)
-                                        {{ $serial }}<br>
+                                        <strong>Serial: </strong>{{ $serial }}
                                     @endforeach
                                 @endif
                             </td>
