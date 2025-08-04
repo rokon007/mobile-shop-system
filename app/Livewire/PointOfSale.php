@@ -373,7 +373,8 @@ class PointOfSale extends Component
             }])
             ->whereHas('product', function($q) {
                 $q->where('status', 'active');
-            });
+            })
+            ->where('quantity', '!=', 0);
 
         if ($this->search) {
             $query->where(function($q) {
