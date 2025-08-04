@@ -313,8 +313,8 @@ class PointOfSale extends Component
                 ]);
 
                 // Update product stock
-                $product = Product::find($item['product_id']);
-                $product->decrement('stock_quantity', $item['quantity']);
+                $invtory = Inventory::find($item['inventory_id']);
+                $invtory->decrement('quantity', $item['quantity']);
             }
 
             DB::commit();
