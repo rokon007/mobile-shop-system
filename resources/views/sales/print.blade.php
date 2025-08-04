@@ -95,6 +95,9 @@
     </style>
 </head>
 <body>
+    @php
+        $logoPath = \App\Models\SystemSetting::where('key', 'shop_logo')->value('value');
+    @endphp
     <div class="container invoice-container">
         <!-- Watermark -->
         @if($settings['shop_logo'])
@@ -116,9 +119,6 @@
             <div class="row mb-3">
                 <div class="col-8">
                     <div class="d-flex align-items-center">
-                        @php
-                            $logoPath = \App\Models\SystemSetting::where('key', 'shop_logo')->value('value');
-                        @endphp
                         @if($settings['shop_logo'])
                             {{-- <img src="{{ asset('storage/' . $settings['shop_logo']) }}"
                                  alt="Shop Logo" class="me-2" style="max-height: 60px;"> --}}
