@@ -474,9 +474,12 @@
         </div>
         <div class="card-footer d-flex align-items-center">
             {{-- <p class="m-0 text-muted">Showing <span>{{ $products->firstItem() }}</span> to <span>{{ $products->lastItem() }}</span> of <span>{{ $products->total() }}</span> entries</p> --}}
-            <div class="ms-auto">
+            {{-- <div class="ms-auto">
                 {{ $products->links() }}
-            </div>
+            </div> --}}
+            <nav class="float-end mt-4" aria-label="Page navigation">
+                {{ $products->links() }}
+            </nav>
         </div>
     </div>
 
