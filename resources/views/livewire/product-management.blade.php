@@ -478,7 +478,7 @@
                 {{ $products->links() }}
             </div> --}}
             <nav class="livewire-pagination" aria-label="Page navigation">
-                {{ $products->links() }}
+                {{ $products->links('custom-pagination-links') }}
             </nav>
         </div>
     </div>
