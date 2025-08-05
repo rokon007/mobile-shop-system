@@ -21,8 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //Paginator::useBootstrapFour();
         Paginator::useBootstrap();
+        Paginator::useBootstrapFour();
+        Paginator::useBootstrapFive();
         Paginator::defaultView('pagination.custom');
     }
 }
