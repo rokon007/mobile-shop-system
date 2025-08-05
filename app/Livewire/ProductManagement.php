@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 class ProductManagement extends Component
 {
     use WithPagination;
+    protected $paginationTheme = 'bootstrap';
 
     public $search = '';
     public $selectedBrand = '';
