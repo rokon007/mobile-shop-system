@@ -477,7 +477,7 @@
             {{-- <div class="ms-auto">
                 {{ $products->links() }}
             </div> --}}
-            <nav class="float-end mt-4" aria-label="Page navigation">
+            <nav class="livewire-pagination" aria-label="Page navigation">
                 {{ $products->links() }}
             </nav>
         </div>
