@@ -6,23 +6,32 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
+
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center no-print">
                     <h4 class="card-title mb-0">Invoice - {{ $sale->invoice_no }}</h4>
-                    <div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div>
+                            <button onclick="window.print()" class="btn btn-primary">
+                                Print Invoice
+                            </button>
+                        </div>
+                        {{-- Uncomment দিলে print link বাটনও পাশাপাশি আসবে --}}
+                        {{--
                         <a href="{{ route('sales.print', $sale->id) }}" class="btn btn-primary btn-sm" target="_blank">
                             <i class="fas fa-download"></i> Print
                         </a>
-                        {{-- <button onclick="window.print()" class="btn btn-info btn-sm">
-                            <i class="fas fa-print"></i> Print
-                        </button> --}}
+                        --}}
                         <a href="{{ route('sales.index') }}" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> Back to Sales
                         </a>
                     </div>
                 </div>
-                <div class="card-body">
+
+
+                <div class="card-body invoice-container">
                     <div class="invoice-content" id="invoice-content">
+
                         <!-- Company Header -->
                         <div class="row mb-4">
                             <div class="col-8">
@@ -31,10 +40,7 @@
                                         $logoPath = \App\Models\SystemSetting::where('key', 'shop_logo')->value('value');
                                     @endphp
                                     @if($settings['shop_logo'])
-                                        {{-- <img src="{{ asset('storage/' . $settings['shop_logo']) }}"
-                                             alt="Shop Logo" class="me-3" style="max-height: 80px;"> --}}
-                                             <img src="{{ asset('storage/app/public/' . $logoPath) }}"
-                                             alt="Shop Logo" class="me-3" style="max-height: 80px;">
+                                        <img src="{{ asset('storage/' . $logoPath) }}" alt="Shop Logo" class="me-3" style="max-height: 80px;">
                                     @endif
                                     <div>
                                         <h5 class="text-dark mb-1">{{ $settings['shop_name'] ?? 'Mobile Shop System' }}</h5>
@@ -57,7 +63,7 @@
                             <div class="col-6">
                                 <h6>Bill To:</h6>
                                 @if($sale->customer)
-                                    <p class="mb-1"><strong> Name: {{ $sale->customer->name }}</strong></p>
+                                    <p class="mb-1"><strong>Name: {{ $sale->customer->name }}</strong></p>
                                     <p class="mb-1">Mobile: {{ $sale->customer->phone }}</p>
                                     <p class="mb-1">{{ $sale->customer->email }}</p>
                                     <p class="mb-0">{{ $sale->customer->address }}</p>
@@ -98,19 +104,16 @@
                                     @foreach($sale->items as $index => $item)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-                                        <td>{{ $item->product->name }}<br>
-
-                                             <div class="item-attributes">
+                                        <td>
+                                            {{ $item->product->name }}<br>
+                                            <div class="item-attributes">
                                                 @php
-                                                    // Get attributes from sale item's attribute_data if available
                                                     $attributes = json_decode($item->attribute_data, true) ?? [];
 
-                                                    // Fallback to inventory attributes if not in sale item
                                                     if (empty($attributes) && $item->product->inventory) {
                                                         $attributes = json_decode($item->product->inventory->attribute_combination, true) ?? [];
                                                     }
 
-                                                    // Convert to human-readable format if needed
                                                     $displayAttributes = [];
                                                     foreach ($attributes as $filterId => $optionId) {
                                                         $filter = App\Models\Filter::find($filterId);
@@ -122,12 +125,9 @@
                                                 @endphp
 
                                                 @foreach($displayAttributes as $name => $value)
-                                                    <small class="text-muted">
-                                                        {{ $name }}: <strong>{{ $value }}</strong>
-                                                    </small>,
+                                                    <small class="text-muted">{{ $name }}: <strong>{{ $value }}</strong></small>,
                                                 @endforeach
                                             </div>
-
                                         </td>
                                         <td>{{ $item->product->brand->name ?? 'N/A' }}</td>
                                         <td>{{ $item->product->model ?? 'N/A' }}</td>
@@ -139,15 +139,15 @@
                                             @if(!empty($imeiNumbers) && array_filter($imeiNumbers))
                                                 <small>
                                                     @foreach(array_filter($imeiNumbers) as $imei)
-                                                        <strong>IMEI: </strong>{{ $imei }}
+                                                        <strong>IMEI: </strong>{{ $imei }}<br>
                                                     @endforeach
                                                 </small>
                                             @endif
                                             @if(!empty($serialNumbers) && array_filter($serialNumbers))
                                                 <small>
-                                                @foreach(array_filter($serialNumbers) as $serial)
-                                                    <strong>SL: </strong>{{ $serial }}
-                                                @endforeach
+                                                    @foreach(array_filter($serialNumbers) as $serial)
+                                                        <strong>SL: </strong>{{ $serial }}<br>
+                                                    @endforeach
                                                 </small>
                                             @endif
                                         </td>
@@ -212,33 +212,121 @@
                                 <hr>
                                 <p class="mb-1"><strong>{{ $settings['invoice_footer'] ?? 'Thank you for your business!' }}</strong></p>
                                 <p class="mb-0 text-muted">This is a computer generated invoice.</p>
+                                <p class="mb-0 sm-text text-muted">System developed by Rokon | Contact: +8801717524792.</p>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
+
+                    </div> <!-- invoice-content -->
+                </div> <!-- card-body -->
+
+            </div> <!-- card -->
+
         </div>
     </div>
 </div>
 
 <style>
-@media print {
-    .card-header, .btn, .no-print {
-        display: none !important;
+    /* Invoice specific styles */
+    .invoice-container {
+        max-width: 210mm;
+        height: 297mm;
+        margin: 0 auto;
+        padding: 15mm;
+        background: #fff;
+        box-sizing: border-box;
+        box-shadow: none;
+        page-break-after: always;
     }
-    .card {
-        border: none !important;
-        box-shadow: none !important;
+
+    .invoice-content {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #212529;
+        background: #fff;
     }
-    .card-body {
-        padding: 0 !important;
+
+    .invoice-content h4, .invoice-content h5, .invoice-content h6 {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #343a40;
     }
-}
+
+    .invoice-content p, .invoice-content td, .invoice-content th {
+        font-size: 14px;
+        color: #212529;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    table, th, td {
+        border: 1px solid #dee2e6;
+    }
+
+    th, td {
+        padding: 8px 10px;
+        vertical-align: middle;
+    }
+
+    thead th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .text-end {
+        text-align: right !important;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+
+    .no-print {
+        display: block;
+    }
+
+    /* Print Styles */
+    @page {
+        size: A4 portrait;
+        margin: 15mm;
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .invoice-container, .invoice-container * {
+            visibility: visible;
+        }
+        .invoice-container {
+            position: fixed;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            width: 210mm;
+            height: 297mm;
+            padding: 15mm;
+            margin: 0;
+            box-shadow: none;
+            background: #fff;
+            box-sizing: border-box;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .no-print, .card-header, .btn {
+            display: none !important;
+        }
+    }
 </style>
 
 <script>
-function printInvoice() {
-    window.print();
-}
+    function printInvoice() {
+        window.print();
+    }
 </script>
 @endsection

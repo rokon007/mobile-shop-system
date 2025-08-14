@@ -6,6 +6,7 @@ use App\Models\Purchase;
 use App\Models\Supplier;
 use App\Models\Product;
 use App\Models\PurchaseItem;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ class PurchaseController extends Controller
         $purchases = Purchase::with(['supplier', 'creator'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
-        
+
         return view('purchases.index', compact('purchases'));
     }
 
@@ -25,7 +26,7 @@ class PurchaseController extends Controller
     {
         $suppliers = Supplier::where('status', 'active')->get();
         $products = Product::where('status', 'active')->get();
-        
+
         return view('purchases.create', compact('suppliers', 'products'));
     }
 
@@ -38,6 +39,11 @@ class PurchaseController extends Controller
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|numeric|min:1',
             'products.*.unit_price' => 'required|numeric|min:0',
+            'tax_amount' => 'nullable|numeric|min:0',
+            'discount_amount' => 'nullable|numeric|min:0',
+            'shipping_cost' => 'nullable|numeric|min:0',
+            'payment_method' => 'nullable|string',
+            'note' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
@@ -77,8 +83,25 @@ class PurchaseController extends Controller
             ]);
 
             // Create purchase items
+            // foreach ($request->products as $product) {
+            //     PurchaseItem::create([
+            //         'purchase_id' => $purchase->id,
+            //         'product_id' => $product['product_id'],
+            //         'quantity' => $product['quantity'],
+            //         'unit_price' => $product['unit_price'],
+            //         'total_price' => $product['quantity'] * $product['unit_price'],
+            //     ]);
+
+            //     // Update product stock if purchase is received
+            //     if ($request->status === 'received') {
+            //         $productModel = Product::find($product['product_id']);
+            //         $productModel->increment('stock_quantity', $product['quantity']);
+            //     }
+
+
+            // store মেথডে নিচের কোড যোগ করুন
             foreach ($request->products as $product) {
-                PurchaseItem::create([
+                $purchaseItem = PurchaseItem::create([
                     'purchase_id' => $purchase->id,
                     'product_id' => $product['product_id'],
                     'quantity' => $product['quantity'],
@@ -86,11 +109,32 @@ class PurchaseController extends Controller
                     'total_price' => $product['quantity'] * $product['unit_price'],
                 ]);
 
-                // Update product stock if purchase is received
-                if ($request->status === 'received') {
-                    $productModel = Product::find($product['product_id']);
-                    $productModel->increment('stock_quantity', $product['quantity']);
+                // Save inventories if exists
+                if (!empty($product['inventories'])) {
+                    $inventories = json_decode($product['inventories'], true);
+
+                    foreach ($inventories as $inventory) {
+                        Inventory::create([
+                            'product_id' => $product['product_id'],
+                            'purchase_item_id' => $purchaseItem->id,
+                            'sku' => $inventory['sku'],
+                            'imei' => $inventory['imei'] ?? null,
+                            'serial_number' => $inventory['serial_number'] ?? null,
+                            'quantity' => $inventory['quantity'],
+                            'purchase_price' => $inventory['purchase_price'],
+                            'selling_price' => $inventory['selling_price'],
+                            'attribute_combination' => json_encode($inventory['filters']),
+                            'status' => 'in_stock',
+                        ]);
+                    }
                 }
+
+                // Update product stock if purchase is received
+                // if ($request->status === 'received') {
+                //     $productModel = Product::find($product['product_id']);
+                //     $productModel->increment('stock_quantity', $product['quantity']);
+                // }
+
             }
 
             DB::commit();
@@ -99,6 +143,8 @@ class PurchaseController extends Controller
             DB::rollback();
             return back()->with('error', 'Error creating purchase: ' . $e->getMessage());
         }
+
+
     }
 
     public function show(Purchase $purchase)
@@ -112,7 +158,7 @@ class PurchaseController extends Controller
         $suppliers = Supplier::where('status', 'active')->get();
         $products = Product::where('status', 'active')->get();
         $purchase->load(['supplier', 'items.product']);
-        
+
         return view('purchases.edit', compact('purchase', 'suppliers', 'products'));
     }
 

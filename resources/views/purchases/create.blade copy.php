@@ -81,10 +81,10 @@
                         <div id="purchase-items">
                             <div class="purchase-item row mb-3">
                                 <div class="col-md-4">
-                                    <select name="products[0][product_id]" class="form-control product-select" required onchange="showInventoryManagement(this, 0)">
+                                    <select name="products[0][product_id]" class="form-control" required>
                                         <option value="">Select Product</option>
                                         @foreach($products as $product)
-                                            <option value="{{ $product->id }}" data-category="{{ $product->category_id }}">{{ $product->name }}</option>
+                                            <option value="{{ $product->id }}">{{ $product->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -97,10 +97,6 @@
                                 <div class="col-md-2">
                                     <button type="button" class="btn btn-danger remove-item">Remove</button>
                                 </div>
-                                <div class="col-12 mt-3 inventory-management-container" style="display: none;">
-                                    <!-- Inventory management will be loaded here -->
-                                </div>
-                                <input type="hidden" name="products[0][inventories]" id="inventories_0">
                             </div>
                         </div>
 
@@ -117,112 +113,32 @@
     </div>
 </div>
 
-{{-- <script>
-    let itemIndex = 1;
+<script>
+let itemIndex = 1;
 
-    document.getElementById('add-item').addEventListener('click', function() {
-        const container = document.getElementById('purchase-items');
-        const newItem = document.querySelector('.purchase-item').cloneNode(true);
+document.getElementById('add-item').addEventListener('click', function() {
+    const container = document.getElementById('purchase-items');
+    const newItem = document.querySelector('.purchase-item').cloneNode(true);
 
-        // Update input names
-        newItem.querySelectorAll('select, input').forEach(element => {
-            const name = element.getAttribute('name');
-            if (name) {
-                element.setAttribute('name', name.replace('[0]', `[${itemIndex}]`));
-                element.value = '';
-            }
-        });
-
-        container.appendChild(newItem);
-        itemIndex++;
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-item')) {
-            if (document.querySelectorAll('.purchase-item').length > 1) {
-                e.target.closest('.purchase-item').remove();
-            }
+    // Update input names
+    newItem.querySelectorAll('select, input').forEach(element => {
+        const name = element.getAttribute('name');
+        if (name) {
+            element.setAttribute('name', name.replace('[0]', `[${itemIndex}]`));
+            element.value = '';
         }
     });
-</script> --}}
 
-<script>
-    let itemIndex = 1;
+    container.appendChild(newItem);
+    itemIndex++;
+});
 
-    document.getElementById('add-item').addEventListener('click', function() {
-        const container = document.getElementById('purchase-items');
-        const newItem = document.querySelector('.purchase-item').cloneNode(true);
-
-        // Update input names
-        newItem.querySelectorAll('select, input').forEach(element => {
-            const name = element.getAttribute('name');
-            if (name) {
-                const newName = name.replace('[0]', `[${itemIndex}]`);
-                element.setAttribute('name', newName);
-
-                // Update IDs if they exist
-                if (element.id) {
-                    element.id = element.id.replace('_0', `_${itemIndex}`);
-                }
-
-                // Reset values
-                if (element.tagName === 'SELECT') {
-                    element.selectedIndex = 0;
-                } else {
-                    element.value = '';
-                }
-            }
-        });
-
-        // Clear inventory management container
-        const inventoryContainer = newItem.querySelector('.inventory-management-container');
-        inventoryContainer.style.display = 'none';
-        inventoryContainer.innerHTML = '';
-
-        // Reset product select event
-        const productSelect = newItem.querySelector('.product-select');
-        productSelect.onchange = function() { showInventoryManagement(this, itemIndex); };
-
-        container.appendChild(newItem);
-        itemIndex++;
-    });
-
-    function showInventoryManagement(selectElement, index) {
-        const productId = selectElement.value;
-        const itemContainer = selectElement.closest('.purchase-item');
-        const inventoryContainer = itemContainer.querySelector('.inventory-management-container');
-        const inventoriesInput = itemContainer.querySelector(`input[name="products[${index}][inventories]"]`);
-
-        if (productId) {
-            // Clear previous content
-            inventoryContainer.innerHTML = '';
-            inventoryContainer.style.display = 'block';
-
-            // Create a unique ID for the container
-            const containerId = `inventory-container-${productId}-${index}`;
-            inventoryContainer.id = containerId;
-
-            // Initialize Livewire component
-            Livewire.emit('initializeInventoryManagement', productId, containerId);
-
-            // Listen for Livewire events to update the hidden input
-            Livewire.on(`inventory-updated-${containerId}`, (inventories) => {
-                inventoriesInput.value = JSON.stringify(inventories);
-            });
-        } else {
-            inventoryContainer.style.display = 'none';
-            inventoryContainer.innerHTML = '';
-            inventoriesInput.value = '';
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-item')) {
+        if (document.querySelectorAll('.purchase-item').length > 1) {
+            e.target.closest('.purchase-item').remove();
         }
     }
-
-    // Rest of the script remains same
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-item')) {
-            if (document.querySelectorAll('.purchase-item').length > 1) {
-                e.target.closest('.purchase-item').remove();
-            }
-        }
-    });
+});
 </script>
 @endsection

@@ -69,7 +69,13 @@
             </a>
             <ul>
                 <li class="{{ request()->routeIs('purchases.*') ? 'active' : '' }}">
-                    <a href="{{ route('purchases.index') }}"><i class="bi bi-arrow-right-short"></i>Purchases</a>
+                    <a href="{{ route('purchase.new') }}"><i class="bi bi-arrow-right-short"></i>Used Phone Purchases</a>
+                </li>
+                <li class="{{ request()->routeIs('purchases.*') ? 'active' : '' }}">
+                    <a href="{{ route('purchase.search') }}"><i class="bi bi-arrow-right-short"></i>Purchases Details</a>
+                </li>
+                <li class="{{ request()->routeIs('purchases.*') ? 'active' : '' }}">
+                    <a href="{{ route('purchases.index') }}"><i class="bi bi-arrow-right-short"></i>Bulk Purchases</a>
                 </li>
                 <li class="{{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
                     <a href="{{ route('suppliers.index') }}"><i class="bi bi-arrow-right-short"></i>Suppliers</a>

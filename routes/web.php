@@ -24,6 +24,10 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ProfileController;
 use App\Livewire\Filter\CategoryFilterComponent;
 use App\Livewire\Filter\InventoryManagementComponent;
+use App\Http\Controllers\InvoiceController;
+use App\Livewire\EditPhonePurchaseForm;
+use App\Http\Controllers\PurchaseInvoiceController;
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +38,25 @@ use App\Livewire\Filter\InventoryManagementComponent;
 Route::get('/', function () {
     return redirect()->route('login');
 });
+
+Route::get('/storage-link', function () {
+    // Artisan command call
+    try {
+        Artisan::call('storage:link');
+        $output = Artisan::output();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Storage link created successfully.',
+            'output' => $output,
+        ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error occurred: ' . $e->getMessage(),
+        ], 500);
+    }
+})->name('storage.link')->middleware('auth');
 
 // Include Breeze authentication routes
 require __DIR__.'/auth.php';
@@ -68,6 +91,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('suppliers', SupplierController::class);
         Route::get('/purchases/{purchase}/invoice', [PurchaseController::class, 'invoice'])->name('purchases.invoice');
         Route::post('/purchases/{purchase}/payment', [PurchaseController::class, 'payment'])->name('purchases.payment');
+
+        Route::view('/purchase/new', 'pages.purchase-new')->name('purchase.new');
+        Route::view('/purchase/search', 'pages.purchase-search')->name('purchase.search');
+
+        Route::get('/invoice/{imei}', [InvoiceController::class, 'generate'])
+            ->where('imei', '[A-Za-z0-9\-]+')
+            ->name('invoice.generate');
+        Route::get('/purchases/{id}/edit', [InvoiceController::class, 'edit'])->name('purchase.edit');
+        Route::get('/purchases/{id}/invoice', [InvoiceController::class, 'invoice'])->name('purchase.invoice');
+        Route::get('/purchases/used/{id}/invoice', [PurchaseInvoiceController::class, 'pinvoice'])->name('purchase.pinvoice');
+        Route::get('/phone-purchase/{purchase_phone_id}/edit', EditPhonePurchaseForm::class)
+    ->name('phone.purchase.edit');
     });
 
     // Sales Management
