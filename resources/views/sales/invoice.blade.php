@@ -92,7 +92,7 @@
 
                         <!-- Items Table -->
                         <div class="table-responsive mb-4">
-                            <table class="table table-bordered table-main">
+                            <table class="table table-bordered">
                                 <thead class="table-primary">
                                     <tr>
                                         <th>#</th>
@@ -230,7 +230,7 @@
     </div>
 </div>
 
-<style>
+{{-- <style>
     /* Invoice specific styles */
     .invoice-container {
         max-width: 210mm;
@@ -311,30 +311,7 @@
     .no-print {
         display: block;
     }
-      /* Previous CSS remains the same until table styles */
-     .table-main {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-        table-layout: fixed; /* Add this line */
-    }
 
-    /* Update the column widths */
-    th:nth-child(1), td:nth-child(1) { width: 5%; }   /* # column */
-    th:nth-child(2), td:nth-child(2) { width: 26%; }  /* Product column */
-    th:nth-child(3), td:nth-child(3) { width: 8%; }  /* Brand column */
-    th:nth-child(4), td:nth-child(4) { width: 12%; }  /* Model column */
-    th:nth-child(5), td:nth-child(5) { width: 20%; }  /* IMEI/Serial column */
-    th:nth-child(6), td:nth-child(6) { width: 5%; }   /* Qty column */
-    th:nth-child(7), td:nth-child(7) { width: 12%; }  /* Unit Price column */
-    th:nth-child(8), td:nth-child(8) { width: 12%; }  /* Total column */
-
-    /* Adjust padding for better fit */
-    .table-main th, td {
-        padding: 6px 8px;
-        word-wrap: break-word;
-    }
-    /* Rest of your existing CSS remains the same */
     /* Print Styles */
     @page {
         size: A4 portrait;
@@ -379,6 +356,150 @@
         .card-header,
         .btn {
             display: none !important;
+        }
+    }
+</style> --}}
+
+<style>
+    /* Invoice specific styles */
+    .invoice-container {
+        max-width: 210mm;
+        height: 297mm;
+        margin: 0 auto;
+        padding: 15mm;
+        background: #fff;
+        box-sizing: border-box;
+        box-shadow: none;
+        page-break-after: always;
+        position: relative;
+    }
+
+    /* Watermark styles */
+    .watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.1;
+        width: 60%;
+        max-width: 300px;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* Table styles with improved column handling */
+    .invoice-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        table-layout: fixed;
+    }
+
+    .invoice-content table.table-sm th,
+    .invoice-content table.table-sm td {
+        padding: 0.3rem 0.5rem;
+        font-size: 13px;
+    }
+
+    .invoice-content th,
+    .invoice-content td {
+        padding: 8px 10px;
+        vertical-align: middle;
+        border: 1px solid #dee2e6;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Column width adjustments */
+    .invoice-content th:nth-child(1),
+    .invoice-content td:nth-child(1) {
+        width: 5%;
+        min-width: 30px;
+    }
+    .invoice-content th:nth-child(2),
+    .invoice-content td:nth-child(2) {
+        width: 20%;
+        min-width: 100px;
+    }
+    .invoice-content th:nth-child(3),
+    .invoice-content td:nth-child(3) {
+        width: 12%;
+        min-width: 80px;
+    }
+    .invoice-content th:nth-child(4),
+    .invoice-content td:nth-child(4) {
+        width: 12%;
+        min-width: 80px;
+    }
+    .invoice-content th:nth-child(5),
+    .invoice-content td:nth-child(5) {
+        width: 18%;
+        min-width: 100px;
+    }
+    .invoice-content th:nth-child(6),
+    .invoice-content td:nth-child(6) {
+        width: 8%;
+        min-width: 50px;
+        text-align: center;
+    }
+    .invoice-content th:nth-child(7),
+    .invoice-content td:nth-child(7) {
+        width: 12%;
+        min-width: 80px;
+        text-align: right;
+    }
+    .invoice-content th:nth-child(8),
+    .invoice-content td:nth-child(8) {
+        width: 13%;
+        min-width: 90px;
+        text-align: right;
+    }
+
+    /* Header styles */
+    .invoice-content thead th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    /* Print styles */
+    @media print {
+        .watermark {
+            position: fixed;
+            z-index: 0;
+            opacity: 0.1;
+        }
+
+        body * {
+            visibility: hidden;
+        }
+        .invoice-container,
+        .invoice-container * {
+            visibility: visible;
+        }
+        .invoice-container {
+            position: fixed;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            width: 210mm;
+            height: 297mm;
+            padding: 15mm;
+            margin: 0;
+            box-shadow: none;
+            background: #fff;
+            box-sizing: border-box;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .no-print,
+        .card-header,
+        .btn {
+            display: none !important;
+        }
+
+        /* Ensure table prints correctly */
+        .invoice-content table {
+            page-break-inside: avoid;
         }
     }
 </style>
