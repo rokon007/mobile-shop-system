@@ -274,7 +274,7 @@
     </div>
 
     <!-- Low Stock Alert -->
-    @if($lowStockProducts > 0)
+    {{-- @if($lowStockProducts > 0)
     <div class="row mt-4">
         <div class="col-12 d-flex">
             <div class="card radius-10 w-100">
@@ -325,5 +325,5 @@
             </div>
         </div>
     </div>
-    @endif
+    @endif --}}
 </div>
