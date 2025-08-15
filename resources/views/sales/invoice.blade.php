@@ -230,7 +230,7 @@
     </div>
 </div>
 
-<style>
+{{-- <style>
     /* Invoice specific styles */
     .invoice-container {
         max-width: 210mm;
@@ -334,6 +334,131 @@
             line-height: 1.5;
         }
         .no-print, .card-header, .btn {
+            display: none !important;
+        }
+    }
+</style> --}}
+
+<style>
+    /* Invoice specific styles */
+    .invoice-container {
+        max-width: 210mm;
+        height: 297mm;
+        margin: 0 auto;
+        padding: 15mm;
+        background: #fff;
+        box-sizing: border-box;
+        box-shadow: none;
+        page-break-after: always;
+    }
+
+    .watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-30deg);
+        opacity: 0.1;
+        width: 60%;
+        max-width: 300px;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .invoice-content {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #212529;
+        background: #fff;
+        position: relative;
+    }
+
+    .invoice-content h4,
+    .invoice-content h5,
+    .invoice-content h6 {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #343a40;
+    }
+
+    .invoice-content p,
+    .invoice-content td,
+    .invoice-content th {
+        font-size: 14px;
+        color: #212529;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    table, th, td {
+        border: 1px solid #dee2e6;
+    }
+
+    th, td {
+        padding: 8px 10px;
+        vertical-align: middle;
+    }
+
+    thead th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .text-end {
+        text-align: right !important;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+
+    .no-print {
+        display: block;
+    }
+
+    /* Print Styles */
+    @page {
+        size: A4 portrait;
+        margin: 15mm;
+    }
+
+    @media print {
+        .watermark {
+            position: fixed;
+            z-index: 0;
+            opacity: 0.1;
+        }
+
+        body * {
+            visibility: hidden;
+        }
+        .invoice-container,
+        .invoice-container * {
+            visibility: visible;
+        }
+        .invoice-container {
+            position: fixed;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            width: 210mm;
+            height: 297mm;
+            padding: 15mm;
+            margin: 0;
+            box-shadow: none;
+            background: #fff;
+            box-sizing: border-box;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .no-print,
+        .card-header,
+        .btn {
             display: none !important;
         }
     }
