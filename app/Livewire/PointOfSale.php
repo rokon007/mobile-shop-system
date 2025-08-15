@@ -20,9 +20,9 @@ class PointOfSale extends Component
     public $customerPhone = '';
     public $customerAddress = '';
     public $paymentMethod = 'cash';
-    public $paidAmount = 0;
-    public $discountAmount = 0;
-    public $taxAmount = 0;
+    public $paidAmount = 0.0; // Initialize as float
+    public $discountAmount = 0.0;
+    public $taxAmount = 0.0;
     public $note = '';
     public $showImeiModal = false;
     public $currentCartIndex = null;
@@ -65,6 +65,16 @@ class PointOfSale extends Component
     //         ];
     //     }
     // }
+
+    protected $rules = [
+        'paidAmount' => 'required|numeric|min:0',
+        // Add other validation rules as needed
+    ];
+
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName);
+    }
 
     public function addToCart($inventoryId) // Changed parameter to accept inventory ID
     {
@@ -204,12 +214,13 @@ class PointOfSale extends Component
 
     public function getTotalProperty()
     {
-        return $this->subtotal - $this->discountAmount + $this->taxAmount;
+        return $this->subtotal - (float)$this->discountAmount + (float)$this->taxAmount;
     }
 
     public function getDueAmountProperty()
     {
-        return $this->total - $this->paidAmount;
+        //return $this->total - $this->paidAmount;
+        return $this->total - (float)$this->paidAmount;
     }
 
     private function generateInvoiceNumber()

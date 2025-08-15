@@ -86,7 +86,7 @@ class PurchaseInventoryManagement extends Component
 
         $this->resetNewInventory();
         $this->generateUniqueSKU();
-        $this->dispatchBrowserEvent('inventory-added');
+        $this->dispatch('inventory-added');
     }
 
     public function editInventory($index)
