@@ -91,18 +91,18 @@
                         </div>
 
                         <!-- Items Table -->
-                        <div class="table-responsive mb-4">
-                            <table class="table table-bordered">
-                                <thead class="table-primary">
+                        <div class="table-container">
+                            <table class="invoice-table">
+                                <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>Product</th>
-                                        <th>Brand</th>
-                                        <th>Model</th>
-                                        <th>IMEI/Serial</th>
-                                        <th class="text-center">Qty</th>
-                                        <th class="text-end">Unit Price</th>
-                                        <th class="text-end">Total</th>
+                                        <th class="col-no">#</th>
+                                        <th class="col-product">Product</th>
+                                        <th class="col-brand">Brand</th>
+                                        <th class="col-model">Model</th>
+                                        <th class="col-imei">IMEI/Serial</th>
+                                        <th class="col-qty">Qty</th>
+                                        <th class="col-price">Unit Price</th>
+                                        <th class="col-total">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -361,16 +361,14 @@
 </style> --}}
 
 <style>
-    /* Invoice specific styles */
+    /* Invoice container styles */
     .invoice-container {
-        max-width: 210mm;
-        height: 297mm;
+        width: 210mm;
+        min-height: 297mm;
         margin: 0 auto;
         padding: 15mm;
         background: #fff;
         box-sizing: border-box;
-        box-shadow: none;
-        page-break-after: always;
         position: relative;
     }
 
@@ -381,125 +379,130 @@
         left: 50%;
         transform: translate(-50%, -50%);
         opacity: 0.1;
-        width: 60%;
         max-width: 300px;
         pointer-events: none;
         z-index: 0;
     }
 
-    /* Table styles with improved column handling */
-    .invoice-content table {
+    /* Table container to prevent overflow */
+    .table-container {
+        width: 100%;
+        overflow: hidden;
+        margin: 15px 0;
+    }
+
+    /* Table styles - optimized for full page fit */
+    .invoice-table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 10px;
-        table-layout: fixed;
-    }
-
-    .invoice-content table.table-sm th,
-    .invoice-content table.table-sm td {
-        padding: 0.3rem 0.5rem;
         font-size: 13px;
+        table-layout: fixed; /* Changed back to fixed for consistent columns */
     }
 
-    .invoice-content th,
-    .invoice-content td {
-        padding: 8px 10px;
-        vertical-align: middle;
+    .invoice-table thead th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        padding: 10px;
         border: 1px solid #dee2e6;
-        word-break: break-word;
-        overflow-wrap: break-word;
+        text-align: left;
     }
 
-    /* Column width adjustments */
-    .invoice-content th:nth-child(1),
-    .invoice-content td:nth-child(1) {
+    .invoice-table tbody td {
+        padding: 8px 10px;
+        border: 1px solid #dee2e6;
+        vertical-align: top;
+        line-height: 1.4;
+    }
+
+    /* Column width adjustments for perfect fit */
+    .invoice-table .col-no {
         width: 5%;
         min-width: 30px;
-    }
-    .invoice-content th:nth-child(2),
-    .invoice-content td:nth-child(2) {
-        width: 20%;
-        min-width: 100px;
-    }
-    .invoice-content th:nth-child(3),
-    .invoice-content td:nth-child(3) {
-        width: 12%;
-        min-width: 80px;
-    }
-    .invoice-content th:nth-child(4),
-    .invoice-content td:nth-child(4) {
-        width: 12%;
-        min-width: 80px;
-    }
-    .invoice-content th:nth-child(5),
-    .invoice-content td:nth-child(5) {
-        width: 18%;
-        min-width: 100px;
-    }
-    .invoice-content th:nth-child(6),
-    .invoice-content td:nth-child(6) {
-        width: 8%;
-        min-width: 50px;
+        max-width: 40px;
         text-align: center;
     }
-    .invoice-content th:nth-child(7),
-    .invoice-content td:nth-child(7) {
-        width: 12%;
-        min-width: 80px;
-        text-align: right;
+
+    .invoice-table .col-product {
+        width: 22%;
+        min-width: 125px;
+        word-break: break-word;
     }
-    .invoice-content th:nth-child(8),
-    .invoice-content td:nth-child(8) {
+
+    .invoice-table .col-brand {
+        width: 10%;
+        min-width: 80px;
+        word-break: break-word;
+    }
+
+    .invoice-table .col-model {
+        width: 10%;
+        min-width: 80px;
+        word-break: break-word;
+    }
+
+    .invoice-table .col-imei {
+        width: 18%;
+        min-width: 100px;
+        word-break: break-all;
+    }
+
+    .invoice-table .col-qty {
+        width: 8%;
+        min-width: 50px;
+        max-width: 60px;
+        text-align: center;
+    }
+
+    .invoice-table .col-price {
+        width: 14%;
+        min-width: 90px;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .invoice-table .col-total {
         width: 13%;
         min-width: 90px;
         text-align: right;
+        white-space: nowrap;
     }
 
-    /* Header styles */
-    .invoice-content thead th {
-        background-color: #f8f9fa;
-        font-weight: 600;
+    /* For small tables */
+    .invoice-table.table-sm thead th,
+    .invoice-table.table-sm tbody td {
+        padding: 6px 8px;
+        font-size: 12px;
     }
 
     /* Print styles */
     @media print {
-        .watermark {
-            position: fixed;
-            z-index: 0;
-            opacity: 0.1;
-        }
-
         body * {
             visibility: hidden;
         }
+
         .invoice-container,
         .invoice-container * {
             visibility: visible;
         }
+
         .invoice-container {
             position: fixed;
-            left: 50%;
+            left: 0;
             top: 0;
-            transform: translateX(-50%);
-            width: 210mm;
-            height: 297mm;
+            width: 100%;
+            height: 100%;
             padding: 15mm;
             margin: 0;
-            box-shadow: none;
             background: #fff;
-            box-sizing: border-box;
             font-size: 14px;
-            line-height: 1.5;
-        }
-        .no-print,
-        .card-header,
-        .btn {
-            display: none !important;
         }
 
-        /* Ensure table prints correctly */
-        .invoice-content table {
+        .invoice-table {
             page-break-inside: avoid;
+        }
+
+        .no-print {
+            display: none !important;
         }
     }
 </style>
