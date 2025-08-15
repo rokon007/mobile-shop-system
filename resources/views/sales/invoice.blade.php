@@ -31,16 +31,21 @@
 
                 <div class="card-body invoice-container">
                     <div class="invoice-content" id="invoice-content">
+                        @php
+                            $logoPath = \App\Models\SystemSetting::where('key', 'shop_logo')->value('value');
+                        @endphp
+                         {{-- Watermark --}}
+                        @if(!empty($logoPath))
+                            <img src="{{ asset('storage/public/' . $logoPath) }}" class="watermark" alt="Watermark Logo">
+                        @endif
 
                         <!-- Company Header -->
                         <div class="row mb-4">
                             <div class="col-8">
                                 <div class="d-flex align-items-center">
-                                    @php
-                                        $logoPath = \App\Models\SystemSetting::where('key', 'shop_logo')->value('value');
-                                    @endphp
+
                                     @if($settings['shop_logo'])
-                                        <img src="{{ asset('storage/' . $logoPath) }}" alt="Shop Logo" class="me-3" style="max-height: 80px;">
+                                        <img src="{{ asset('storage/public/' . $logoPath) }}" alt="Shop Logo" class="me-3" style="max-height: 80px;">
                                     @endif
                                     <div>
                                         <h5 class="text-dark mb-1">{{ $settings['shop_name'] ?? 'Mobile Shop System' }}</h5>
@@ -236,6 +241,16 @@
         box-sizing: border-box;
         box-shadow: none;
         page-break-after: always;
+    }
+
+    .watermark {
+        position: fixed;
+        top: 30%;
+        left: 30%;
+        opacity: 0.1;
+        width: 300px;
+        pointer-events: none;
+        z-index: -1;
     }
 
     .invoice-content {

@@ -127,7 +127,7 @@
                             </div>
                         @elseif ($photo_path)
                             <div class="mt-2">
-                                <img src="{{ asset('storage/' . $photo_path) }}" class="img-thumbnail" style="max-height: 150px;">
+                                <img src="{{ asset('storage/public/' . $photo_path) }}" class="img-thumbnail" style="max-height: 150px;">
                                 <button type="button" class="btn btn-sm btn-danger mt-1" wire:click="removePhoto">
                                     <i class="fas fa-times"></i> Remove
                                 </button>
@@ -148,7 +148,7 @@
                             </div>
                         @elseif ($nid_photo_path)
                             <div class="mt-2">
-                                <img src="{{ asset('storage/' . $nid_photo_path) }}" class="img-thumbnail" style="max-height: 150px;">
+                                <img src="{{ asset('storage/public/' . $nid_photo_path) }}" class="img-thumbnail" style="max-height: 150px;">
                                 <button type="button" class="btn btn-sm btn-danger mt-1" wire:click="removePhoto">
                                     <i class="fas fa-times"></i> Remove
                                 </button>
@@ -176,7 +176,7 @@
                             </div>
                         @elseif ($purchase_receipt_path)
                             <div class="mt-2">
-                                <img src="{{ asset('storage/' . $purchase_receipt_path) }}" class="img-thumbnail" style="max-height: 150px;">
+                                <img src="{{ asset('storage/public/' . $purchase_receipt_path) }}" class="img-thumbnail" style="max-height: 150px;">
                                 <button type="button" class="btn btn-sm btn-danger mt-1" wire:click="removePhoto">
                                     <i class="fas fa-times"></i> Remove
                                 </button>
