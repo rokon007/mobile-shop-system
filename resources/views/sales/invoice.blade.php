@@ -311,7 +311,30 @@
     .no-print {
         display: block;
     }
+      /* Previous CSS remains the same until table styles */
+     table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        table-layout: fixed; /* Add this line */
+    }
 
+    /* Update the column widths */
+    th:nth-child(1), td:nth-child(1) { width: 5%; }   /* # column */
+    th:nth-child(2), td:nth-child(2) { width: 20%; }  /* Product column */
+    th:nth-child(3), td:nth-child(3) { width: 12%; }  /* Brand column */
+    th:nth-child(4), td:nth-child(4) { width: 12%; }  /* Model column */
+    th:nth-child(5), td:nth-child(5) { width: 18%; }  /* IMEI/Serial column */
+    th:nth-child(6), td:nth-child(6) { width: 8%; }   /* Qty column */
+    th:nth-child(7), td:nth-child(7) { width: 12%; }  /* Unit Price column */
+    th:nth-child(8), td:nth-child(8) { width: 13%; }  /* Total column */
+
+    /* Adjust padding for better fit */
+    th, td {
+        padding: 6px 8px;
+        word-wrap: break-word;
+    }
+    /* Rest of your existing CSS remains the same */
     /* Print Styles */
     @page {
         size: A4 portrait;
