@@ -45,13 +45,13 @@
                         <td>{{ number_format($purchase->purchase_price, 2) }}</td>
                         <td>
                             @if($purchase->seller->purchase_receipt_path ?? false)
-                                <a href="{{ asset('storage/'.$purchase->seller->purchase_receipt_path) }}"
+                                <a href="{{ asset('storage/public/'.$purchase->seller->purchase_receipt_path) }}"
                                    target="_blank" class="btn btn-sm btn-info">
                                     <i class="fas fa-file-invoice"></i> Receipt
                                 </a>
                             @endif
                             @if($purchase->seller->nid_photo_path ?? false)
-                                <a href="{{ asset('storage/'.$purchase->seller->nid_photo_path) }}"
+                                <a href="{{ asset('storage/public/'.$purchase->seller->nid_photo_path) }}"
                                    target="_blank" class="btn btn-sm btn-secondary mt-1">
                                     <i class="fas fa-id-card"></i> NID
                                 </a>

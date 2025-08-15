@@ -114,13 +114,13 @@
 
 <div class="invoice-container">
     {{-- Watermark --}}
-    @if(!empty($logoPath) && File::exists($absoluteLogoPath))
+    @if(!empty($logoPath))
         <img src="{{ asset('storage/public/' . $logoPath) }}" class="watermark" alt="Watermark Logo">
     @endif
 
     {{-- Header --}}
     <div class="header">
-        @if(!empty($logoPath) && File::exists($absoluteLogoPath))
+        @if(!empty($logoPath))
             <img src="{{ asset('storage/public/' . $logoPath) }}" alt="Shop Logo">
         @endif
         <div class="shop-details">
