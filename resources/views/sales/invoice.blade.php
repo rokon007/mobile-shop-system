@@ -241,6 +241,7 @@
         box-sizing: border-box;
         box-shadow: none;
         page-break-after: always;
+        position: relative;
     }
 
     .watermark {
@@ -261,7 +262,6 @@
         line-height: 1.5;
         color: #212529;
         background: #fff;
-        position: relative;
     }
 
     .invoice-content h4,
@@ -321,9 +321,13 @@
     @media print {
         .watermark {
             position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             z-index: 0;
             opacity: 0.1;
-            transform: translate(-50%, -50%);
+            width: 60%;
+            max-width: 300px;
         }
 
         body * {
