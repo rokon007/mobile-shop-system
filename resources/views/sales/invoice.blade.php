@@ -49,17 +49,17 @@
                                     @endif
                                     <div>
                                         <h5 class="text-dark mb-1">{{ $settings['shop_name'] ?? 'Mobile Shop System' }}</h5>
-                                        <p class="mb-0">{{ $settings['shop_address'] ?? 'Shop Address' }}</p>
-                                        <p class="mb-0">Phone: {{ $settings['shop_phone'] ?? 'N/A' }}</p>
-                                        <p class="mb-0">Email: {{ $settings['shop_email'] ?? 'N/A' }}</p>
+                                        <p class="mb-0 fsize">{{ $settings['shop_address'] ?? 'Shop Address' }}</p>
+                                        <p class="mb-0 fsize">Phone: {{ $settings['shop_phone'] ?? 'N/A' }}</p>
+                                        <p class="mb-0 fsize">Email: {{ $settings['shop_email'] ?? 'N/A' }}</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
                                 <h5 class="text-dark">INVOICE</h5>
-                                <p class="mb-1"><strong>Invoice No:</strong> {{ $sale->invoice_no }}</p>
-                                <p class="mb-1"><strong>Date:</strong> {{ $sale->sale_date->format('d M Y') }}</p>
-                                <p class="mb-0"><strong>Time:</strong> {{ $sale->sale_date->format('h:i A') }}</p>
+                                <p class="mb-1 fsize"><strong>Invoice No:</strong> {{ $sale->invoice_no }}</p>
+                                <p class="mb-1 fsize"><strong>Date:</strong> {{ $sale->sale_date->format('d M Y') }}</p>
+                                <p class="mb-0 fsize"><strong>Time:</strong> {{ $sale->sale_date->format('h:i A') }}</p>
                             </div>
                         </div>
 
@@ -68,25 +68,25 @@
                             <div class="col-6">
                                 <h6>Bill To:</h6>
                                 @if($sale->customer)
-                                    <p class="mb-1"><strong>Name: {{ $sale->customer->name }}</strong></p>
-                                    <p class="mb-1">Mobile: {{ $sale->customer->phone }}</p>
-                                    <p class="mb-1">{{ $sale->customer->email }}</p>
-                                    <p class="mb-0">{{ $sale->customer->address }}</p>
+                                    <p class="mb-1 fsize"><strong>Name: {{ $sale->customer->name }}</strong></p>
+                                    <p class="mb-1 fsize">Mobile: {{ $sale->customer->phone }}</p>
+                                    <p class="mb-1 fsize">{{ $sale->customer->email }}</p>
+                                    <p class="mb-0 fsize">{{ $sale->customer->address }}</p>
                                 @elseif($sale->customer_name)
-                                    <p class="mb-1"><strong>{{ $sale->customer_name }}</strong></p>
-                                    <p class="mb-0">{{ $sale->customer_phone }}</p>
+                                    <p class="mb-1 fsize"><strong>{{ $sale->customer_name }}</strong></p>
+                                    <p class="mb-0 fsize">{{ $sale->customer_phone }}</p>
                                 @else
-                                    <p class="mb-0">Walk-in Customer</p>
+                                    <p class="mb-0 fsize">Walk-in Customer</p>
                                 @endif
                             </div>
                             <div class="col-6 text-end">
-                                <p class="mb-1"><strong>Payment Method:</strong> {{ ucfirst(str_replace('_', ' ', $sale->payment_method)) }}</p>
-                                <p class="mb-1"><strong>Payment Status:</strong>
+                                <p class="mb-1 fsize"><strong>Payment Method:</strong> {{ ucfirst(str_replace('_', ' ', $sale->payment_method)) }}</p>
+                                <p class="mb-1 fsize"><strong>Payment Status:</strong>
                                     <span class="badge bg-{{ $sale->payment_status == 'paid' ? 'success' : ($sale->payment_status == 'partial' ? 'warning' : 'danger') }}">
                                         {{ ucfirst($sale->payment_status) }}
                                     </span>
                                 </p>
-                                <p class="mb-0"><strong>Served by:</strong> {{ $sale->createdBy->name ?? 'System' }}</p>
+                                <p class="mb-0 fsize"><strong>Served by:</strong> {{ $sale->createdBy->name ?? 'System' }}</p>
                             </div>
                         </div>
 
@@ -361,6 +361,9 @@
 </style> --}}
 
 <style>
+    .fsize {
+        font-size: 14px;
+    }
     /* Invoice container styles */
     .invoice-container {
         width: 210mm;
