@@ -215,9 +215,9 @@
                         <div class="row mt-4">
                             <div class="col-12 text-center">
                                 <hr>
-                                <p class="mb-1"><strong>{{ $settings['invoice_footer'] ?? 'Thank you for your business!' }}</strong></p>
-                                <p class="mb-0 text-muted">This is a computer generated invoice.</p>
-                                <p class="mb-0 sm-text text-muted">System developed by Rokon | Contact: +8801717524792.</p>
+                                <p class="mb-1 fsize"><strong>{{ $settings['invoice_footer'] ?? 'Thank you for your business!' }}</strong></p>
+                                <p class="mb-0 text-muted fsize">This is a computer generated invoice.</p>
+                                <p class="mb-0 sm-text text-muted" style="font-size:11px;">System developed by Rokon | Contact: +8801717524792.</p>
                             </div>
                         </div>
 
