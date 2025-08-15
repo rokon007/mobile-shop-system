@@ -158,7 +158,7 @@
                                         <div class="row">
                                             <div class="col-md-4 text-center mb-3">
                                                 @if($selectedPurchase->seller->photo_path)
-                                                    <img src="{{ asset('storage/'.$selectedPurchase->seller->photo_path) }}"
+                                                    <img src="{{ asset('storage/public/'.$selectedPurchase->seller->photo_path) }}"
                                                         class="img-thumbnail rounded-circle" style="max-height: 150px;">
                                                 @else
                                                     <div class="bg-light p-4 text-muted rounded-circle d-flex align-items-center justify-content-center" style="height: 150px; width: 150px;">
@@ -307,8 +307,8 @@
                                     <div class="col-md-4 mb-3">
                                         <div class="document-card h-100">
                                             <div class="document-preview">
-                                                <a href="{{ asset('storage/'.$selectedPurchase->seller->nid_photo_path) }}" target="_blank">
-                                                    <img src="{{ asset('storage/'.$selectedPurchase->seller->nid_photo_path) }}"
+                                                <a href="{{ asset('storage/public/'.$selectedPurchase->seller->nid_photo_path) }}" target="_blank">
+                                                    <img src="{{ asset('storage/public/'.$selectedPurchase->seller->nid_photo_path) }}"
                                                         class="img-thumbnail w-100" style="max-height: 200px;">
                                                 </a>
                                             </div>
@@ -324,8 +324,8 @@
                                     <div class="col-md-4 mb-3">
                                         <div class="document-card h-100">
                                             <div class="document-preview">
-                                                <a href="{{ asset('storage/'.$selectedPurchase->seller->purchase_receipt_path) }}" target="_blank">
-                                                    <img src="{{ asset('storage/'.$selectedPurchase->seller->purchase_receipt_path) }}"
+                                                <a href="{{ asset('storage/public/'.$selectedPurchase->seller->purchase_receipt_path) }}" target="_blank">
+                                                    <img src="{{ asset('storage/public/'.$selectedPurchase->seller->purchase_receipt_path) }}"
                                                         class="img-thumbnail w-100" style="max-height: 200px;">
                                                 </a>
                                             </div>
@@ -341,8 +341,8 @@
                                     <div class="col-md-4 mb-3">
                                         <div class="document-card h-100">
                                             <div class="document-preview">
-                                                <a href="{{ asset('storage/'.$selectedPurchase->seller->photo_path) }}" target="_blank">
-                                                    <img src="{{ asset('storage/'.$selectedPurchase->seller->photo_path) }}"
+                                                <a href="{{ asset('storage/public/'.$selectedPurchase->seller->photo_path) }}" target="_blank">
+                                                    <img src="{{ asset('storage/public/'.$selectedPurchase->seller->photo_path) }}"
                                                         class="img-thumbnail w-100" style="max-height: 200px;">
                                                 </a>
                                             </div>

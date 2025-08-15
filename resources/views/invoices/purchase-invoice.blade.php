@@ -4,7 +4,7 @@
 @php
     use Illuminate\Support\Facades\File;
     $logoPath = $settings['shop_logo'] ?? null;
-    $absoluteLogoPath = $logoPath ? public_path('storage/' . $logoPath) : null;
+    $absoluteLogoPath = $logoPath ? public_path('storage/public/' . $logoPath) : null;
 @endphp
 
 <style>
@@ -115,13 +115,13 @@
 <div class="invoice-container">
     {{-- Watermark --}}
     @if(!empty($logoPath) && File::exists($absoluteLogoPath))
-        <img src="{{ asset('storage/' . $logoPath) }}" class="watermark" alt="Watermark Logo">
+        <img src="{{ asset('storage/public/' . $logoPath) }}" class="watermark" alt="Watermark Logo">
     @endif
 
     {{-- Header --}}
     <div class="header">
         @if(!empty($logoPath) && File::exists($absoluteLogoPath))
-            <img src="{{ asset('storage/' . $logoPath) }}" alt="Shop Logo">
+            <img src="{{ asset('storage/public/' . $logoPath) }}" alt="Shop Logo">
         @endif
         <div class="shop-details">
             <h5>{{ $settings['shop_name'] ?? 'Mobile Shop System' }}</h5>
