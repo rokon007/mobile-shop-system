@@ -362,7 +362,7 @@
 
 <style>
     .fsize {
-        font-size: 14px;
+        font-size: 12px;
     }
     /* Invoice container styles */
     .invoice-container {
@@ -497,7 +497,7 @@
             padding: 15mm;
             margin: 0;
             background: #fff;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .invoice-table {
