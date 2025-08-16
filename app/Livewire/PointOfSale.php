@@ -334,7 +334,8 @@ class PointOfSale extends Component
             session()->flash('message', 'Sale completed successfully! Invoice: ' . $sale->invoice_no);
 
             // Redirect to invoice page
-            return redirect()->route('sales.invoice', $sale->id);
+            //return redirect()->route('sales.invoice', $sale->id);
+            return redirect()->route('purchase.search');
 
         } catch (\Exception $e) {
             DB::rollback();
