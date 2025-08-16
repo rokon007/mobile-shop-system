@@ -68,7 +68,8 @@ class PhonePurchaseForm extends Component
         ]);
 
         session()->flash('success', 'Phone purchase saved successfully!');
-        return redirect()->route('invoice.generate', ['imei' => $this->imei]);
+        //return redirect()->route('invoice.generate', ['imei' => $this->imei]);
+        return redirect()->route('purchase.search');
     }
 
     public function removePhoto()

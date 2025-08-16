@@ -257,7 +257,7 @@ class PointOfSale extends Component
         try {
             $customerId = $this->selectedCustomer;
 
-            // Create new customer if not selected and customer details provided resubmit
+            // Create new customer if not selected and customer details provided
             if (!$customerId && ($this->customerName || $this->customerPhone)) {
                 if (!$this->customerName || !$this->customerPhone) {
                     session()->flash('error', 'Please provide both customer name and phone number for new customer!');
@@ -334,8 +334,7 @@ class PointOfSale extends Component
             session()->flash('message', 'Sale completed successfully! Invoice: ' . $sale->invoice_no);
 
             // Redirect to invoice page
-            //return redirect()->route('sales.invoice', $sale->id);
-            return redirect()->route('purchase.search');
+            return redirect()->route('sales.invoice', $sale->id);
 
         } catch (\Exception $e) {
             DB::rollback();
