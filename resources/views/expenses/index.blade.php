@@ -15,7 +15,7 @@
                     @if(session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
-                    
+
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead>
@@ -38,7 +38,7 @@
                                     <td>${{ number_format($expense->amount, 2) }}</td>
                                     <td>{{ $expense->expense_date->format('Y-m-d') }}</td>
                                     <td>
-                                        <span class="badge badge-{{ $expense->status === 'approved' ? 'success' : 'warning' }}">
+                                        <span class="badge bg-{{ $expense->status === 'approved' ? 'success' : 'warning' }}">
                                             {{ ucfirst($expense->status) }}
                                         </span>
                                     </td>
@@ -62,7 +62,7 @@
                             </tbody>
                         </table>
                     </div>
-                    
+
                     {{ $expenses->links() }}
                 </div>
             </div>

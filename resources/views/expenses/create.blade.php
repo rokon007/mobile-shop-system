@@ -11,7 +11,7 @@
                 <div class="card-body">
                     <form action="{{ route('expenses.store') }}" method="POST">
                         @csrf
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -22,17 +22,20 @@
                                     @enderror
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="category">Category</label>
                                     <select name="category" id="category" class="form-control @error('category') is-invalid @enderror" required>
                                         <option value="">Select Category</option>
-                                        <option value="office_supplies" {{ old('category') == 'office_supplies' ? 'selected' : '' }}>Office Supplies</option>
-                                        <option value="utilities" {{ old('category') == 'utilities' ? 'selected' : '' }}>Utilities</option>
-                                        <option value="rent" {{ old('category') == 'rent' ? 'selected' : '' }}>Rent</option>
+                                        <option value="salary_payment" {{ old('category') == 'salary_payment' ? 'selected' : '' }}>Salary payment</option>
+                                        <option value="utility_expense" {{ old('category') == 'utility_expense' ? 'selected' : '' }}>Utilities</option>
+                                        <option value="shop_rent" {{ old('category') == 'shop_rent' ? 'selected' : '' }}>Rent</option>
+                                        <option value="daily_expense" {{ old('category') == 'daily_expense' ? 'selected' : '' }}>Daily expense</option>
+                                        <option value="monthly_expense" {{ old('category') == 'monthly_expense' ? 'selected' : '' }}>Monthly expense</option>
+                                        <option value="yearly_expense" {{ old('category') == 'yearly_expense' ? 'selected' : '' }}>Yearly expense</option>
                                         <option value="marketing" {{ old('category') == 'marketing' ? 'selected' : '' }}>Marketing</option>
-                                        <option value="travel" {{ old('category') == 'travel' ? 'selected' : '' }}>Travel</option>
+                                        <option value="transport" {{ old('category') == 'transport' ? 'selected' : '' }}>Transport</option>
                                         <option value="maintenance" {{ old('category') == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
                                         <option value="other" {{ old('category') == 'other' ? 'selected' : '' }}>Other</option>
                                     </select>
@@ -42,7 +45,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -53,7 +56,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="expense_date">Expense Date</label>
@@ -64,12 +67,12 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="description">Description</label>
                             <textarea name="description" id="description" class="form-control" rows="3">{{ old('description') }}</textarea>
                         </div>
-                        
+
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary">Create Expense</button>
                             <a href="{{ route('expenses.index') }}" class="btn btn-secondary">Cancel</a>

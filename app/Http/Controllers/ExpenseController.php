@@ -12,10 +12,10 @@ class ExpenseController extends Controller
 {
     public function index()
     {
-        $expenses = Expense::with(['employee', 'creator', 'approver'])
+        $expenses = Expense::with(['employee', 'createdBy', 'approvedBy'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
-        
+
         return view('expenses.index', compact('expenses'));
     }
 
@@ -34,7 +34,7 @@ class ExpenseController extends Controller
             'transport' => 'Transport',
             'other' => 'Other'
         ];
-        
+
         return view('expenses.create', compact('employees', 'categories'));
     }
 
@@ -45,7 +45,7 @@ class ExpenseController extends Controller
             'category' => 'required|string',
             'amount' => 'required|numeric|min:0',
             'expense_date' => 'required|date',
-            'payment_method' => 'required|string',
+            'payment_method' => 'nullable|string',
             'receipt_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
@@ -53,13 +53,13 @@ class ExpenseController extends Controller
             $data = $request->all();
             $data['created_by'] = Auth::id();
 
-            // Handle file upload
+            //Handle file upload
             if ($request->hasFile('receipt_file')) {
                 $data['receipt_file'] = $request->file('receipt_file')->store('receipts', 'public');
             }
 
             Expense::create($data);
-            
+
             return redirect()->route('expenses.index')->with('success', 'Expense created successfully!');
         } catch (\Exception $e) {
             return back()->with('error', 'Error creating expense: ' . $e->getMessage());
@@ -87,7 +87,7 @@ class ExpenseController extends Controller
             'transport' => 'Transport',
             'other' => 'Other'
         ];
-        
+
         return view('expenses.edit', compact('expense', 'employees', 'categories'));
     }
 
@@ -98,7 +98,7 @@ class ExpenseController extends Controller
             'category' => 'required|string',
             'amount' => 'required|numeric|min:0',
             'expense_date' => 'required|date',
-            'payment_method' => 'required|string',
+            'payment_method' => 'nullable|string',
             'receipt_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
@@ -115,7 +115,7 @@ class ExpenseController extends Controller
             }
 
             $expense->update($data);
-            
+
             return redirect()->route('expenses.index')->with('success', 'Expense updated successfully!');
         } catch (\Exception $e) {
             return back()->with('error', 'Error updating expense: ' . $e->getMessage());
@@ -129,7 +129,7 @@ class ExpenseController extends Controller
             if ($expense->receipt_file) {
                 Storage::disk('public')->delete($expense->receipt_file);
             }
-            
+
             $expense->delete();
             return redirect()->route('expenses.index')->with('success', 'Expense deleted successfully!');
         } catch (\Exception $e) {
@@ -139,14 +139,13 @@ class ExpenseController extends Controller
 
     public function approve(Request $request, Expense $expense)
     {
-        $request->validate([
-            'status' => 'required|in:approved,rejected',
-        ]);
-
+        // $request->validate([
+        //     'status' => 'required|in:approved,rejected',
+        // ]);
+        //dd('ok');
         $expense->update([
-            'status' => $request->status,
+            'status' => 'approved',
             'approved_by' => Auth::id(),
-            'approved_at' => now(),
         ]);
 
         $message = $request->status === 'approved' ? 'Expense approved successfully!' : 'Expense rejected successfully!';

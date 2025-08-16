@@ -60,7 +60,11 @@
             </form>
         </div>
 
-
+        @if (Route::has('register'))
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="{{ route('register') }}">Register here</a></p>
+            </div>
+        @endif
     </div>
 
     <!-- Demo Credentials Card -->
@@ -87,5 +91,8 @@
         </div>
     </div>
 
-
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+    <!-- Or use CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </x-guest-layout>

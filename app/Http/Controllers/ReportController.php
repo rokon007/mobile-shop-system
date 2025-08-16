@@ -13,12 +13,85 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Exports\SalesExport;
+use Maatwebsite\Excel\Facades\Excel;
+use PDF;
 
 class ReportController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
+    }
+
+    // private function exportSales($request)
+    // {
+    //     $query = Sale::with(['customer', 'items.product']);
+
+    //     if ($request->start_date) {
+    //         $query->whereDate('sale_date', '>=', $request->start_date);
+    //     }
+
+    //     if ($request->end_date) {
+    //         $query->whereDate('sale_date', '<=', $request->end_date);
+    //     }
+
+    //     if ($request->customer_id) {
+    //         $query->where('customer_id', $request->customer_id);
+    //     }
+
+    //     $sales = $query->latest()->get();
+
+    //     if ($request->export == 'excel') {
+    //         return Excel::download(new SalesExport($sales), 'sales-report-'.now()->format('Y-m-d').'.xlsx');
+    //     } else {
+    //         $pdf = PDF::loadView('reports.exports.sales-pdf', compact('sales'));
+    //         return $pdf->download('sales-report-'.now()->format('Y-m-d').'.pdf');
+    //     }
+    // }
+
+    public function export(Request $request)
+    {
+        $type = $request->type;
+
+        switch ($type) {
+            case 'sales':
+                return $this->exportSales($request);
+            case 'inventory':
+                return $this->exportInventory($request);
+            case 'customer':
+                return $this->exportCustomer($request);
+            case 'profit-loss':
+                return $this->exportProfitLoss($request);
+            default:
+                return back()->with('error', 'Invalid export type');
+        }
+    }
+
+    private function exportSales($request)
+    {
+        $query = Sale::with(['customer', 'items.product']);
+
+        if ($request->start_date) {
+            $query->whereDate('sale_date', '>=', $request->start_date);
+        }
+
+        if ($request->end_date) {
+            $query->whereDate('sale_date', '<=', $request->end_date);
+        }
+
+        if ($request->customer_id) {
+            $query->where('customer_id', $request->customer_id);
+        }
+
+        $sales = $query->latest()->get();
+
+        if ($request->export == 'excel') {
+            return Excel::download(new SalesExport($sales), 'sales-report-'.now()->format('Y-m-d').'.xlsx');
+        } else {
+            $pdf = PDF::loadView('reports.exports.sales-pdf', compact('sales'));
+            return $pdf->download('sales-report-'.now()->format('Y-m-d').'.pdf');
+        }
     }
 
     public function index()
@@ -135,29 +208,29 @@ class ReportController extends Controller
         return view('reports.employee', compact('employees'));
     }
 
-    public function export(Request $request)
-    {
-        $type = $request->type;
+    // public function export(Request $request)
+    // {
+    //     $type = $request->type;
 
-        switch ($type) {
-            case 'sales':
-                return $this->exportSales($request);
-            case 'inventory':
-                return $this->exportInventory($request);
-            case 'customer':
-                return $this->exportCustomer($request);
-            case 'profit-loss':
-                return $this->exportProfitLoss($request);
-            default:
-                return back()->with('error', 'Invalid export type');
-        }
-    }
+    //     switch ($type) {
+    //         case 'sales':
+    //             return $this->exportSales($request);
+    //         case 'inventory':
+    //             return $this->exportInventory($request);
+    //         case 'customer':
+    //             return $this->exportCustomer($request);
+    //         case 'profit-loss':
+    //             return $this->exportProfitLoss($request);
+    //         default:
+    //             return back()->with('error', 'Invalid export type');
+    //     }
+    // }
 
-    private function exportSales($request)
-    {
-        // Implementation for sales export
-        return back()->with('success', 'Sales report exported successfully');
-    }
+    // private function exportSales($request)
+    // {
+    //     // Implementation for sales export
+    //     return back()->with('success', 'Sales report exported successfully');
+    // }
 
     private function exportInventory($request)
     {

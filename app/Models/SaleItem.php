@@ -12,6 +12,7 @@ class SaleItem extends Model
     protected $fillable = [
         'sale_id',
         'product_id',
+        'inventory_id',
         'quantity',
         'unit_price',
         'total_price',
@@ -28,6 +29,11 @@ class SaleItem extends Model
         'imei_numbers' => 'array',
         'serial_numbers' => 'array',
     ];
+
+    public function inventory()
+    {
+        return $this->belongsTo(Inventory::class);
+    }
 
     public function sale()
     {

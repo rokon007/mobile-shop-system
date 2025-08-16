@@ -74,12 +74,12 @@
                 <li class="{{ request()->routeIs('purchases.*') ? 'active' : '' }}">
                     <a href="{{ route('purchase.search') }}"><i class="bi bi-arrow-right-short"></i>Purchases Details</a>
                 </li>
-                <li class="{{ request()->routeIs('purchases.*') ? 'active' : '' }}">
+                {{-- <li class="{{ request()->routeIs('purchases.*') ? 'active' : '' }}">
                     <a href="{{ route('purchases.index') }}"><i class="bi bi-arrow-right-short"></i>Bulk Purchases</a>
                 </li>
                 <li class="{{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
                     <a href="{{ route('suppliers.index') }}"><i class="bi bi-arrow-right-short"></i>Suppliers</a>
-                </li>
+                </li> --}}
             </ul>
         </li>
         @endcan
@@ -115,14 +115,14 @@
                 <li class="{{ request()->routeIs('attendance.*') ? 'active' : '' }}">
                     <a href="{{ route('attendance.index') }}"><i class="bi bi-arrow-right-short"></i>Attendance</a>
                 </li>
-                <li class="{{ request()->routeIs('leaves.*') ? 'active' : '' }}">
+                {{-- <li class="{{ request()->routeIs('leaves.*') ? 'active' : '' }}">
                     <a href="{{ route('leaves.index') }}"><i class="bi bi-arrow-right-short"></i>Leave Management</a>
-                </li>
+                </li> --}}
             </ul>
         </li>
         @endcan
         @can('finance-management')
-        <li class="{{ request()->routeIs('expenses.*') || request()->routeIs('loans.*') ? 'active' : '' }}">
+        {{-- <li class="{{ request()->routeIs('expenses.*') || request()->routeIs('loans.*') ? 'active' : '' }}">
             <a href="javascript:;" class="has-arrow">
                 <div class="parent-icon"><i class="bi bi-calculator"></i></div>
                 <div class="menu-title">Finance & Accounting</div>
@@ -135,9 +135,9 @@
                     <a href="{{ route('loans.index') }}"><i class="bi bi-arrow-right-short"></i>Loan Management</a>
                 </li>
             </ul>
-        </li>
+        </li> --}}
         @endcan
-        @can('inventory-management')
+        {{-- @can('inventory-management')
         <li class="{{ request()->routeIs('inventory.*') || request()->routeIs('warehouses.*') || request()->routeIs('stock-transfers.*') ? 'active' : '' }}">
             <a href="javascript:;" class="has-arrow">
                 <div class="parent-icon"><i class="bi bi-layers"></i></div>
@@ -155,7 +155,7 @@
                 </li>
             </ul>
         </li>
-        @endcan
+        @endcan --}}
         @can('reports-view')
         <li class="{{ request()->routeIs('reports.*') ? 'active' : '' }}">
             <a href="javascript:;" class="has-arrow">

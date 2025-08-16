@@ -16,7 +16,10 @@
                         <div>
                             <p class="mb-0 text-secondary">Today's Sales</p>
                             <h4 class="my-1">৳{{ number_format($todaySales, 2) }}</h4>
-                            <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i> 5% from yesterday</p>
+                            <p class="mb-0 font-13 {{ $salesChange['class'] }}">
+                                <i class="{{ $salesChange['icon'] }}"></i>
+                                {{ $salesChange['percentage'] }}% from yesterday
+                            </p>
                         </div>
                         <div class="widget-icon-large bg-gradient-purple text-white ms-auto">
                             <i class="bi bi-currency-dollar"></i>
@@ -34,7 +37,10 @@
                         <div>
                             <p class="mb-0 text-secondary">Today's Expenses</p>
                             <h4 class="my-1">৳{{ number_format($todayExpenses, 2) }}</h4>
-                            <p class="mb-0 font-13 text-danger"><i class="bi bi-caret-down-fill"></i> 2% from yesterday</p>
+                            <p class="mb-0 font-13 {{ $expensesChange['class'] }}">
+                                <i class="{{ $expensesChange['icon'] }}"></i>
+                                {{ $expensesChange['percentage'] }}% from yesterday
+                            </p>
                         </div>
                         <div class="widget-icon-large bg-gradient-danger text-white ms-auto">
                             <i class="bi bi-cash-stack"></i>
@@ -52,7 +58,10 @@
                         <div>
                             <p class="mb-0 text-secondary">Today's Profit</p>
                             <h4 class="my-1">৳{{ number_format($todayProfit, 2) }}</h4>
-                            <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i> 12% from yesterday</p>
+                            <p class="mb-0 font-13 {{ $profitChange['class'] }}">
+                                <i class="{{ $profitChange['icon'] }}"></i>
+                                {{ $profitChange['percentage'] }}% from yesterday
+                            </p>
                         </div>
                         <div class="widget-icon-large bg-gradient-success  ms-auto">
                             <i class="bi bi-cash-stack"></i>
@@ -68,9 +77,9 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
-                            <p class="mb-0 text-secondary">Low Stock Alert</p>
-                            <h4 class="my-1">{{ $lowStockProducts }}</h4>
-                            <p class="mb-0 font-13 text-warning"><i class="bi bi-exclamation-triangle-fill"></i> Needs attention</p>
+                            <p class="mb-0 text-secondary">Today's Purchases</p>
+                            <h4 class="my-1">{{ $todayPhoneCount }}</h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-exclamation-triangle-fill"></i> Purchases Amount: {{$todayTotalAmount}}</p>
                         </div>
                         <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
                             <i class="bi bi-exclamation-octagon"></i>
@@ -92,8 +101,14 @@
                             <p class="mb-0 text-secondary">Total Products</p>
                             <h4 class="my-1">{{ $totalProducts }}</h4>
                             <div class="progress mt-2" style="height: 5px;">
-                                <div class="progress-bar bg-gradient-info" role="progressbar" style="width: 90%"></div>
+                                <div class="progress-bar bg-gradient-info" role="progressbar"
+                                    style="width: {{ min(($totalProducts / $maxProducts) * 100, 100) }}%"
+                                    aria-valuenow="{{ $totalProducts }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="{{ $maxProducts }}">
+                                </div>
                             </div>
+                            <small class="text-muted">{{ $totalProducts }}/{{ $maxProducts }} products</small>
                         </div>
                         <div class="widget-icon-large bg-gradient-info text-white ms-auto">
                             <i class="bi bi-box-seam"></i>
@@ -112,8 +127,14 @@
                             <p class="mb-0 text-secondary">Total Customers</p>
                             <h4 class="my-1">{{ $totalCustomers }}</h4>
                             <div class="progress mt-2" style="height: 5px;">
-                                <div class="progress-bar bg-gradient-pink" role="progressbar" style="width: 80%"></div>
+                                <div class="progress-bar bg-gradient-pink" role="progressbar"
+                                    style="width: {{ min(($totalCustomers / $maxCustomers) * 100, 100) }}%"
+                                    aria-valuenow="{{ $totalCustomers }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="{{ $maxCustomers }}">
+                                </div>
                             </div>
+                            <small class="text-muted">{{ $totalCustomers }}/{{ $maxCustomers }} customers</small>
                         </div>
                         <div class="widget-icon-large bg-pink text-white ms-auto">
                             <i class="bi bi-people-fill"></i>
@@ -125,44 +146,57 @@
 
         <!-- Total Employees -->
         <div class="col">
-            <div class="card radius-10">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            <p class="mb-0 text-secondary">Total Employees</p>
-                            <h4 class="my-1">{{ $totalEmployees }}</h4>
-                            <div class="progress mt-2" style="height: 5px;">
-                                <div class="progress-bar bg-gradient-orange" role="progressbar" style="width: 70%"></div>
+                <div class="card radius-10">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Total Employees</p>
+                                <h4 class="my-1">{{ $totalEmployees }}</h4>
+                                <div class="progress mt-2" style="height: 5px;">
+                                    <div class="progress-bar bg-gradient-orange" role="progressbar"
+                                        style="width: {{ min(($totalEmployees / $maxEmployees) * 100, 100) }}%"
+                                        aria-valuenow="{{ $totalEmployees }}"
+                                        aria-valuemin="0"
+                                        aria-valuemax="{{ $maxEmployees }}">
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ $totalEmployees }}/{{ $maxEmployees }} employees</small>
+                            </div>
+                            <div class="widget-icon-large bg-orange text-white ms-auto">
+                                <i class="bi bi-person-badge-fill"></i>
                             </div>
                         </div>
-                        <div class="widget-icon-large bg-orange text-white ms-auto">
-                            <i class="bi bi-person-badge-fill"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Profit -->
+            <div class="col">
+                <div class="card radius-10">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Monthly Profit</p>
+                                <h4 class="my-1">৳{{ number_format($monthlyProfit, 2) }}</h4>
+                                <div class="progress mt-2" style="height: 5px;">
+                                    <div class="progress-bar bg-gradient-success" role="progressbar"
+                                        style="width: {{ min(($monthlyProfit / $maxMonthlyProfit) * 100, 100) }}%"
+                                        aria-valuenow="{{ $monthlyProfit }}"
+                                        aria-valuemin="0"
+                                        aria-valuemax="{{ $maxMonthlyProfit }}">
+                                    </div>
+                                </div>
+                                <small class="text-muted">৳{{ number_format($monthlyProfit, 0) }}/৳{{ number_format($maxMonthlyProfit, 0) }}</small>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-success text-white ms-auto">
+                                ৳
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Monthly Profit -->
-        <div class="col">
-            <div class="card radius-10">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            <p class="mb-0 text-secondary">Monthly Profit</p>
-                            <h4 class="my-1">৳{{ number_format($monthlyProfit, 2) }}</h4>
-                            <div class="progress mt-2" style="height: 5px;">
-                                <div class="progress-bar bg-gradient-success" role="progressbar" style="width: 95%"></div>
-                            </div>
-                        </div>
-                        <div class="widget-icon-large bg-gradient-success text-white ms-auto">
-                            ৳
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Recent Sales and Top Products -->
     <div class="row mt-4">

@@ -12,7 +12,7 @@
                     <form action="{{ route('expenses.update', $expense) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -23,19 +23,22 @@
                                     @enderror
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="category">Category</label>
                                     <select name="category" id="category" class="form-control @error('category') is-invalid @enderror" required>
                                         <option value="">Select Category</option>
-                                        <option value="office_supplies" {{ $expense->category == 'office_supplies' ? 'selected' : '' }}>Office Supplies</option>
-                                        <option value="utilities" {{ $expense->category == 'utilities' ? 'selected' : '' }}>Utilities</option>
-                                        <option value="rent" {{ $expense->category == 'rent' ? 'selected' : '' }}>Rent</option>
-                                        <option value="marketing" {{ $expense->category == 'marketing' ? 'selected' : '' }}>Marketing</option>
-                                        <option value="travel" {{ $expense->category == 'travel' ? 'selected' : '' }}>Travel</option>
-                                        <option value="maintenance" {{ $expense->category == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
-                                        <option value="other" {{ $expense->category == 'other' ? 'selected' : '' }}>Other</option>
+                                        <option value="salary_payment" {{ old('category') == 'salary_payment' ? 'selected' : '' }}>Salary payment</option>
+                                        <option value="utility_expense" {{ old('category') == 'utility_expense' ? 'selected' : '' }}>Utilities</option>
+                                        <option value="shop_rent" {{ old('category') == 'shop_rent' ? 'selected' : '' }}>Rent</option>
+                                        <option value="daily_expense" {{ old('category') == 'daily_expense' ? 'selected' : '' }}>Daily expense</option>
+                                        <option value="monthly_expense" {{ old('category') == 'monthly_expense' ? 'selected' : '' }}>Monthly expense</option>
+                                        <option value="yearly_expense" {{ old('category') == 'yearly_expense' ? 'selected' : '' }}>Yearly expense</option>
+                                        <option value="marketing" {{ old('category') == 'marketing' ? 'selected' : '' }}>Marketing</option>
+                                        <option value="transport" {{ old('category') == 'transport' ? 'selected' : '' }}>Transport</option>
+                                        <option value="maintenance" {{ old('category') == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
+                                        <option value="other" {{ old('category') == 'other' ? 'selected' : '' }}>Other</option>
                                     </select>
                                     @error('category')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -43,7 +46,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -54,7 +57,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="expense_date">Expense Date</label>
@@ -65,12 +68,12 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="description">Description</label>
                             <textarea name="description" id="description" class="form-control" rows="3">{{ $expense->description }}</textarea>
                         </div>
-                        
+
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary">Update Expense</button>
                             <a href="{{ route('expenses.show', $expense) }}" class="btn btn-secondary">Cancel</a>

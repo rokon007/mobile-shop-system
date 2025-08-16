@@ -26,12 +26,17 @@
                         <span class="input-group-text">
                             <i class="fas fa-envelope"></i>
                         </span>
-                        <input id="email" class="form-control" type="email" name="email" :value="old('email')" required autofocus placeholder="Enter your email address" />
+                        <input id="email" class="form-control @error('email') is-invalid @enderror"
+                               type="email" name="email" value="{{ old('email') }}"
+                               required autofocus placeholder="Enter your email address" />
                     </div>
-                    <x-input-error :messages="$errors->get('email')" class="text-danger" />
+                    @error('email')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-paper-plane me-2"></i>
                     {{ __('Email Password Reset Link') }}
                 </button>
             </form>

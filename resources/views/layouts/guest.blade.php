@@ -9,13 +9,13 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon.ico') }}"/>
-    
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
-    
+
     <!-- Bootstrap CSS -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
-    
+
     <!-- Custom Authentication Styles -->
     <style>
         body {
@@ -235,7 +235,7 @@
             .auth-container {
                 padding: 10px;
             }
-            
+
             .auth-body {
                 padding: 20px;
             }
@@ -247,5 +247,9 @@
     <div class="auth-container">
         {{ $slot }}
     </div>
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+    <!-- Or use CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </body>
 </html>

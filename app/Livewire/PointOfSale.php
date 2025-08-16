@@ -309,6 +309,7 @@ class PointOfSale extends Component
                 $saleItem = SaleItem::create([
                     'sale_id' => $sale->id,
                     'product_id' => $item['product_id'],
+                    'inventory_id' => $item['inventory_id'],
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['price'],
                     'total_price' => $item['price'] * $item['quantity'],
