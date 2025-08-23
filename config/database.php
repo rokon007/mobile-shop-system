@@ -63,7 +63,7 @@ return [
             ]) : [],
 
              'dump' => [
-            'dump_binary_path' => '/usr/bin/mysqldump',
+            'dump_binary_path' => '/usr/bin',
             'use_single_transaction' => true,
             'timeout' => 60 * 5, // 5 minutes
         ],
