@@ -12,7 +12,23 @@ class SettingController extends Controller
     public function index()
     {
         $settings = SystemSetting::pluck('value', 'key');
-        return view('settings.index', compact('settings'));
+
+
+        $folder = 'Mobile Shop Management System';
+        $files = Storage::files($folder);
+
+        $backupFiles = [];
+        foreach ($files as $file) {
+            $backupFiles[] = [
+                'name' => basename($file),
+                'size' => $this->formatSize(Storage::size($file)),
+                'last_modified' => date('Y-m-d H:i:s', Storage::lastModified($file)),
+            ];
+        }
+
+        // ফাইলগুলো নামের উল্টা ক্রমে সাজানো (নতুন ফাইল প্রথমে দেখাবে)
+        $backupFiles = array_reverse($backupFiles);
+        return view('settings.index', compact('settings','backupFiles'));
     }
 
     // public function update(Request $request)

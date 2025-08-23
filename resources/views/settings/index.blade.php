@@ -296,16 +296,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse(Storage::files('backups') as $file)
-                                    @php
-                                        $filename = basename($file);
-                                        $fileSize = round(Storage::size($file) / (1024 * 1024), 2); // MB
-                                        $createdAt = Storage::lastModified($file);
-                                    @endphp
+                                @forelse($backupFiles as $file)
+
                                     <tr>
-                                        <td>{{ $filename }}</td>
-                                        <td>{{ $fileSize }} MB</td>
-                                        <td>{{ \Carbon\Carbon::createFromTimestamp($createdAt)->format('d M Y, h:i A') }}</td>
+                                        <td>{{ $file['name'] }}</td>
+                                        <td>{{ $file['size'] }} MB</td>
+                                        <td>{{ $file['last_modified'] }}</td>
                                         <td>
                                             <div class="btn-group">
                                                 <a href="{{ route('settings.backup.download', ['file' => $filename]) }}"
