@@ -31,18 +31,23 @@ class SettingController extends Controller
         return view('settings.index', compact('settings','backupFiles'));
     }
 
-    // public function update(Request $request)
-    // {
-    //     foreach ($request->except('_token', '_method') as $key => $value) {
-    //         SystemSetting::updateOrCreate(
-    //             ['key' => $key],
-    //             ['value' => $value]
-    //         );
-    //     }
-
-    //     return back()->with('success', 'Settings updated successfully');
-    // }
-
+    // ফাইল সাইজ ফরম্যাট করার মেথড যোগ করুন
+    private function formatSize($bytes)
+    {
+        if ($bytes >= 1073741824) {
+            return number_format($bytes / 1073741824, 2) . ' GB';
+        } elseif ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            return number_format($bytes / 1024, 2) . ' KB';
+        } elseif ($bytes > 1) {
+            return $bytes . ' bytes';
+        } elseif ($bytes == 1) {
+            return $bytes . ' byte';
+        } else {
+            return '0 bytes';
+        }
+    }
 
 
     public function update(Request $request)
