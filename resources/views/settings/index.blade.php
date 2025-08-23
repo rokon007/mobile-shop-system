@@ -309,7 +309,7 @@
                                                     <i class="fas fa-download"></i>
                                                 </a>
                                                 <button class="btn btn-danger btn-sm delete-backup"
-                                                        data-filename="{{ $filename }}" title="Delete">
+                                                        data-filename="{{ $file['name'] }}" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
