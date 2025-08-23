@@ -8,6 +8,8 @@ use App\Models\Phone;
 use App\Models\PurchaseFhone;
 use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class EditPhonePurchaseForm extends Component
 {
@@ -65,26 +67,6 @@ class EditPhonePurchaseForm extends Component
 
     }
 
-    // protected $rules = [
-    //     'name' => 'required|string',
-    //     'father_name' => 'required|string',
-    //     'mother_name' => 'required|string',
-    //     'nid_number' => 'required|unique:sellers,nid_number',
-    //     'phone' => 'required',
-    //     'brand' => 'required|string',
-    //     'model' => 'required|string',
-    //     'manufacture_year' => 'required|integer',
-    //     'imei' => 'required|unique:phones,imei',
-    //     'serial_number' => 'required|unique:phones,serial_number',
-    //     'ram' => 'nullable|string',
-    //     'rom' => 'nullable|string',
-    //     'purchase_price' => 'required|numeric',
-    //     'purchase_date' => 'required|date',
-    //     'photo' => 'nullable|image|max:2048',
-    //     'nid_photo' => 'nullable|image|max:2048',
-    //     'purchase_receipt' => 'nullable|mimes:jpg,jpeg,png,pdf|max:4096',
-    // ];
-
     public function rules()
     {
         return [
@@ -104,43 +86,50 @@ class EditPhonePurchaseForm extends Component
             'purchase_date' => 'required|date',
             'photo' => 'nullable|image|max:2048',
             'nid_photo' => 'nullable|image|max:2048',
-            'purchase_receipt' => 'nullable|mimes:jpg,jpeg,png,pdf|max:4096',
+            'purchase_receipt' => 'nullable|mimes:jpg,jpeg,png,pdf',
         ];
     }
 
     public function update()
     {
-        //$this->validate();
-
         $this->validate($this->rules());
 
         // Update Seller
         $seller = Seller::findOrFail($this->seller_id);
 
-        // পুরানো photo ডিলিট ও নতুন আপলোড
-            if ($this->photo) {
-                if ($seller->photo_path && Storage::disk('public')->exists($seller->photo_path)) {
-                    Storage::disk('public')->delete($seller->photo_path);
-                }
-                $photoPath = $this->photo->store('sellers/photos', 'public');
-                $seller->photo_path = $photoPath;
+        // Process and update photo if provided
+        if ($this->photo) {
+            if ($seller->photo_path && Storage::disk('public')->exists($seller->photo_path)) {
+                Storage::disk('public')->delete($seller->photo_path);
+            }
+            $photoPath = $this->resizeAndStoreImage($this->photo, 'sellers/photos', 800, 600);
+            $seller->photo_path = $photoPath;
+        }
+
+        // Process and update nid_photo if provided
+        if ($this->nid_photo) {
+            if ($seller->nid_photo_path && Storage::disk('public')->exists($seller->nid_photo_path)) {
+                Storage::disk('public')->delete($seller->nid_photo_path);
+            }
+            $nidPhotoPath = $this->resizeAndStoreImage($this->nid_photo, 'sellers/nid', 1000, 800);
+            $seller->nid_photo_path = $nidPhotoPath;
+        }
+
+        // Process and update purchase_receipt if provided
+        if ($this->purchase_receipt) {
+            if ($seller->purchase_receipt_path && Storage::disk('public')->exists($seller->purchase_receipt_path)) {
+                Storage::disk('public')->delete($seller->purchase_receipt_path);
             }
 
-            if ($this->nid_photo) {
-                if ($seller->nid_photo_path && Storage::disk('public')->exists($seller->nid_photo_path)) {
-                    Storage::disk('public')->delete($seller->nid_photo_path);
-                }
-                $nidPhotoPath = $this->nid_photo->store('sellers/nid', 'public');
-                $seller->nid_photo_path = $nidPhotoPath;
-            }
-
-            if ($this->purchase_receipt) {
-                if ($seller->purchase_receipt_path && Storage::disk('public')->exists($seller->purchase_receipt_path)) {
-                    Storage::disk('public')->delete($seller->purchase_receipt_path);
-                }
+            if ($this->purchase_receipt->getClientOriginalExtension() === 'pdf') {
+                // Store PDF as is
                 $receiptPath = $this->purchase_receipt->store('sellers/receipts', 'public');
-                $seller->purchase_receipt_path = $receiptPath;
+            } else {
+                // Resize and store image
+                $receiptPath = $this->resizeAndStoreImage($this->purchase_receipt, 'sellers/receipts', 1200, 900);
             }
+            $seller->purchase_receipt_path = $receiptPath;
+        }
 
         $seller->update([
             'name' => $this->name,
@@ -153,7 +142,6 @@ class EditPhonePurchaseForm extends Component
             'phone' => $this->phone,
             'email' => $this->email,
             'facebook_id' => $this->facebook_id,
-            // update photos if added handling here
         ]);
 
         // Update Phone
@@ -179,23 +167,58 @@ class EditPhonePurchaseForm extends Component
         return redirect()->route('purchase.search');
     }
 
+    /**
+     * Resize and store an image using Intervention Image
+     *
+     * @param mixed $file The uploaded file
+     * @param string $directory The storage directory
+     * @param int $width The target width
+     * @param int $height The target height
+     * @return string|null The file path or null if failed
+     */
+    private function resizeAndStoreImage($file, $directory, $width, $height)
+    {
+        try {
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($file->getRealPath());
+
+            // Resize the image while maintaining aspect ratio
+            $image->resize($width, $height, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+
+            // Generate a unique filename
+            $fileName = time() . '_' . uniqid() . '.jpg';
+            $filePath = $directory . '/' . $fileName;
+
+            // Save the image as JPG with 80% quality
+            $image->toJpeg(80)->save(storage_path('app/public/' . $filePath));
+
+            return $filePath;
+        } catch (\Exception $e) {
+            // Log error or handle it as needed
+            return null;
+        }
+    }
+
     public function removePhoto()
     {
         $this->photo = null;
     }
+
     public function removeNidPhoto()
     {
         $this->nid_photo = null;
     }
+
     public function removeReceipt()
     {
         $this->purchase_receipt = null;
     }
-
 
     public function render()
     {
         return view('livewire.edit-phone-purchase-form')->layout('livewire.layout.app');
     }
 }
-

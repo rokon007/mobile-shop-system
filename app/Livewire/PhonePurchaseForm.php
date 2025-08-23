@@ -7,6 +7,9 @@ use Livewire\WithFileUploads;
 use App\Models\Seller;
 use App\Models\Phone;
 use App\Models\PurchaseFhone;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Facades\Storage;
 
 class PhonePurchaseForm extends Component
 {
@@ -25,14 +28,38 @@ class PhonePurchaseForm extends Component
         'serial_number' => 'required|unique:phones,serial_number',
         'purchase_price' => 'required|numeric',
         'purchase_date' => 'required|date',
-        'photo' => 'nullable|image|max:2048',
-        'nid_photo' => 'nullable|image|max:2048',
-        'purchase_receipt' => 'nullable|mimes:jpg,jpeg,png,pdf|max:4096',
+        'photo' => 'nullable|image',
+        'nid_photo' => 'nullable|image',
+        'purchase_receipt' => 'nullable|mimes:jpg,jpeg,png,pdf',
     ];
 
     public function save()
     {
         $this->validate();
+
+        // Process and save photo
+        $photoPath = null;
+        if ($this->photo) {
+            $photoPath = $this->resizeAndStoreImage($this->photo, 'sellers/photos', 800, 600);
+        }
+
+        // Process and save nid_photo
+        $nidPhotoPath = null;
+        if ($this->nid_photo) {
+            $nidPhotoPath = $this->resizeAndStoreImage($this->nid_photo, 'sellers/nid', 1000, 800);
+        }
+
+        // Process and save purchase_receipt (handle both images and PDF)
+        $purchaseReceiptPath = null;
+        if ($this->purchase_receipt) {
+            if ($this->purchase_receipt->getClientOriginalExtension() === 'pdf') {
+                // Store PDF as is
+                $purchaseReceiptPath = $this->purchase_receipt->store('sellers/receipts', 'public');
+            } else {
+                // Resize and store image
+                $purchaseReceiptPath = $this->resizeAndStoreImage($this->purchase_receipt, 'sellers/receipts', 1200, 900);
+            }
+        }
 
         $seller = Seller::create([
             'name' => $this->name,
@@ -45,9 +72,9 @@ class PhonePurchaseForm extends Component
             'phone' => $this->phone,
             'email' => $this->email,
             'facebook_id' => $this->facebook_id,
-            'photo_path' => $this->photo?->store('sellers/photos', 'public'),
-            'nid_photo_path' => $this->nid_photo?->store('sellers/nid', 'public'),
-            'purchase_receipt_path' => $this->purchase_receipt?->store('sellers/receipts', 'public'),
+            'photo_path' => $photoPath,
+            'nid_photo_path' => $nidPhotoPath,
+            'purchase_receipt_path' => $purchaseReceiptPath,
         ]);
 
         $phone = Phone::create([
@@ -68,8 +95,42 @@ class PhonePurchaseForm extends Component
         ]);
 
         session()->flash('success', 'Phone purchase saved successfully!');
-        //return redirect()->route('invoice.generate', ['imei' => $this->imei]);
         return redirect()->route('purchase.search');
+    }
+
+    /**
+     * Resize and store an image using Intervention Image
+     *
+     * @param mixed $file The uploaded file
+     * @param string $directory The storage directory
+     * @param int $width The target width
+     * @param int $height The target height
+     * @return string|null The file path or null if failed
+     */
+    private function resizeAndStoreImage($file, $directory, $width, $height)
+    {
+        try {
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($file->getRealPath());
+
+            // Resize the image while maintaining aspect ratio
+            $image->resize($width, $height, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+
+            // Generate a unique filename
+            $fileName = time() . '_' . uniqid() . '.jpg';
+            $filePath = $directory . '/' . $fileName;
+
+            // Save the image as JPG with 80% quality
+            $image->toJpeg(80)->save(storage_path('app/public/' . $filePath));
+
+            return $filePath;
+        } catch (\Exception $e) {
+            // Log error or handle it as needed
+            return null;
+        }
     }
 
     public function removePhoto()
