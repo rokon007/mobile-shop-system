@@ -19,45 +19,23 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # Handle Backup Downloads - LiteSpeed Specific Rule
+    RewriteRule ^backup/download/(.*)$ /index.php [L,NC]
+
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
 
+# LiteSpeed Caching Exclusions for Backup Routes
+<IfModule LiteSpeed>
+    CacheDisable public /backup/download/
+    CacheDisable public /settings/backup/
+</IfModule>
 
-
-
-
-
-
-
-
-
-
-# <IfModule mod_rewrite.c>
-#     <IfModule mod_negotiation.c>
-#         Options -MultiViews -Indexes
-#     </IfModule>
-
-#     <Files ".env">
-#          Require all denied
-#     </Files>
-
-
-#     RewriteEngine On
-
-#     # Handle Authorization Header
-#     RewriteCond %{HTTP:Authorization} .
-#     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-#     # Redirect Trailing Slashes If Not A Folder...
-#     RewriteCond %{REQUEST_FILENAME} !-d
-#     RewriteCond %{REQUEST_URI} (.+)/$
-#     RewriteRule ^ %1 [L,R=301]
-
-#     # Send Requests To Front Controller...
-#     RewriteCond %{REQUEST_FILENAME} !-d
-#     RewriteCond %{REQUEST_FILENAME} !-f
-#     RewriteRule ^ index.php [L]
-# </IfModule>
+# Prevent MIME type issues with zip files
+<FilesMatch "\.(zip)$">
+    ForceType application/octet-stream
+    Header set Content-Disposition attachment
+</FilesMatch>

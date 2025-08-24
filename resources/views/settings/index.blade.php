@@ -304,7 +304,7 @@
                                         <td>{{ $file['last_modified'] }}</td>
                                         <td>
                                             <div class="btn-group">
-                                                <a href="{{ route('settings.backup.download', ['file' => $file['name']]) }}"
+                                                <a href="{{ route('settings.backup.download', ['filename' => urlencode($file['name'])]) }}"
                                                    class="btn btn-primary btn-sm" title="Download">
                                                     <i class="bi bi-download"></i>
                                                 </a>

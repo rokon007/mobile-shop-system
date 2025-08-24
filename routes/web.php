@@ -170,7 +170,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
         //Route::post('/settings/backup', [SettingController::class, 'backup'])->name('settings.backup');
         Route::match(['get', 'post'], '/settings/backup', [SettingController::class, 'backup'])->name('settings.backup');
-        Route::get('/settings/backup/download/{file}', [SettingController::class, 'downloadBackup'])->name('settings.backup.download');
+        Route::get('/backup/download/{filename}', [SettingController::class, 'downloadBackup'])->name('settings.backup.download')->where('filename', '.*');
         Route::delete('/settings/backup/delete/{file}', [SettingController::class, 'deleteBackup'])->name('settings.backup.delete');
     });
 });

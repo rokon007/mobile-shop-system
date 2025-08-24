@@ -97,15 +97,32 @@ class SettingController extends Controller
         }
     }
 
-    public function downloadBackup(Request $request)
+    public function downloadBackup($filename)
     {
-        $filePath = 'Mobile Shop Management System/' . $request;
+        try {
+            // ফাইলের পাথ
+            $filePath = 'Mobile Shop Management System/' . urldecode($filename);
 
-        if (Storage::exists($filePath)) {
-            return Storage::download($filePath);
+
+            if (!Storage::exists($filePath)) {
+                return back()->with('error', 'ফাইলটি পাওয়া যায়নি: ' . $filename);
+            }
+
+            // ফাইলের পূর্ণ পাথ
+            $fullPath = Storage::path($filePath);
+
+            // ফাইলের নাম পরিষ্কার করুন (শুধুমাত্র ফাইলের নাম অংশ নিন)
+            $cleanFilename = basename($filename);
+
+            // ডাউনলোড রেস্পন্স
+            return response()->download($fullPath, $cleanFilename, [
+                'Content-Type' => 'application/zip',
+                'Content-Disposition' => 'attachment; filename="' . $cleanFilename . '"',
+            ]);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'ডাউনলোড ব্যর্থ: ' . $e->getMessage());
         }
-
-        return back()->with('error', 'Backup file not found');
     }
 
     public function deleteBackup($file)
