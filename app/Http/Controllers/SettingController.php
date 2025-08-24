@@ -99,10 +99,10 @@ class SettingController extends Controller
 
     public function downloadBackup(Request $request)
     {
-        $filename = $request->filename;
+        $filePath = 'Mobile Shop Management System/' . $request;
 
-        if (Storage::exists('backups/' . $filename)) {
-            return Storage::download('backups/' . $filename);
+        if (Storage::exists($filePath)) {
+            return Storage::download($filePath);
         }
 
         return back()->with('error', 'Backup file not found');
@@ -110,7 +110,15 @@ class SettingController extends Controller
 
     public function deleteBackup($file)
     {
-        Storage::delete('backups/' . $file);
-        return response()->json(['message' => 'Backup deleted successfully']);
+
+        $filePath = 'Mobile Shop Management System/' . $file;
+
+        if (Storage::exists($filePath)) {
+            Storage::delete($filePath);
+            return back()->with('success', 'Backup deleted successfully');
+        }
+
+        return back()->with('error', 'ফাইলটি ডিলিট করা যায়নি');
+
     }
 }

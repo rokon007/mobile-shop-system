@@ -306,11 +306,11 @@
                                             <div class="btn-group">
                                                 <a href="{{ route('settings.backup.download', ['file' => $file['name']]) }}"
                                                    class="btn btn-primary btn-sm" title="Download">
-                                                    <i class="fas fa-download"></i>
+                                                    <i class="bi bi-download"></i>
                                                 </a>
                                                 <button class="btn btn-danger btn-sm delete-backup"
                                                         data-filename="{{ $file['name'] }}" title="Delete">
-                                                    <i class="fas fa-trash"></i>
+                                                    <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>
                                         </td>
