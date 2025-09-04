@@ -54,6 +54,12 @@ class Customer extends Model
         return $this->sales()->sum('due_amount');
     }
 
+     // Accessor for sales_count
+    public function getSalesCountAttribute()
+    {
+        return $this->sales()->count();
+    }
+
     public function payments()
     {
         return $this->hasManyThrough(Payment::class, Sale::class);
