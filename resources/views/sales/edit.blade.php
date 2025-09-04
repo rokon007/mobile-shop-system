@@ -89,15 +89,19 @@
                                     @foreach($sale->items as $index => $item)
                                     <tr>
                                         <td>
-                                            <select class="form-control product-select" name="items[{{ $index }}][product_id]" required>
+                                            <select class="form-control product-select" name="items[{{ $index }}][inventory_id]" required>
                                                 @foreach($inventories as $inventory)
-                                                    <option value="{{ $inventory->product_id }}"
+                                                    <option value="{{ $inventory->id }}"
                                                             data-price="{{ $inventory->selling_price }}"
-                                                            {{ $item->product_id == $inventory->product_id ? 'selected' : '' }}>
-                                                        {{ $inventory->product->name }} @if($inventory->imei) ({{ $inventory->imei }}) @else ({{ $inventory->serial_number }}) @endif
+                                                            {{ $item->inventory_id == $inventory->id ? 'selected' : '' }}>
+                                                        {{ $inventory->product->name }}
+                                                        @if($inventory->imei) ({{ $inventory->imei }})
+                                                        @else ({{ $inventory->serial_number }})
+                                                        @endif
                                                     </option>
                                                 @endforeach
                                             </select>
+
                                         </td>
                                         <td>
                                             <input type="number" class="form-control quantity-input"
@@ -202,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
             <td>
-                <select class="form-control product-select" name="items[${itemIndex}][product_id]" required>
+                <select class="form-control product-select" name="items[${itemIndex}][inventory_id]" required>
                     @foreach($inventories as $inventory)
                         <option value="{{ $inventory->product_id }}" data-price="{{ $inventory->selling_price }}">
                             {{ $inventory->product->name }} @if($inventory->imei) ({{ $inventory->imei }}) @else ({{ $inventory->serial_number }}) @endif

@@ -112,7 +112,8 @@ class SaleController extends Controller
 
     public function edit(Sale $sale)
     {
-        $sale->load(['items']);
+        // Load items with their product, inventory, and related product data
+        $sale->load(['items.product', 'items.inventory.product.brand', 'items.inventory.product.category']);
         //$products = Product::where('status', 'active')->get();
         $customers = Customer::where('status', 'active')->get();
 
