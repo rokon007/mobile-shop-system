@@ -56,10 +56,10 @@
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                             <a href="{{ route('customers.edit', $customer) }}" class="btn btn-warning btn-sm" title="Edit">
-                                                <i class="bi bi-edit"></i>
+                                                <i class="bi bi-pencil"></i>
                                             </a>
                                             <a href="{{ route('customers.payment-history', $customer) }}" class="btn btn-secondary btn-sm" title="Payment History">
-                                                <i class="bi bi-history"></i>
+                                                <i class="bi bi-clock"></i>
                                             </a>
                                             <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="d-inline">
                                                 @csrf
