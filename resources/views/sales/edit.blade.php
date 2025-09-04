@@ -91,9 +91,9 @@
                                         <td>
                                             <select class="form-control product-select" name="items[{{ $index }}][product_id]" required>
                                                 @foreach($inventories as $inventory)
-                                                    <option value="{{ $inventory->id }}"
+                                                    <option value="{{ $inventory->product_id }}"
                                                             data-price="{{ $inventory->selling_price }}"
-                                                            {{ $item->product_id == $inventory->id ? 'selected' : '' }}>
+                                                            {{ $item->product_id == $inventory->product_id ? 'selected' : '' }}>
                                                         {{ $inventory->product->name }} @if($inventory->imei) ({{ $inventory->imei }}) @else ({{ $inventory->serial_number }}) @endif
                                                     </option>
                                                 @endforeach

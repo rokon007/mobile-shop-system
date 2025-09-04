@@ -113,7 +113,7 @@ class SaleController extends Controller
     public function edit(Sale $sale)
     {
         $sale->load(['items']);
-        $products = Product::where('status', 'active')->get();
+        //$products = Product::where('status', 'active')->get();
         $customers = Customer::where('status', 'active')->get();
 
         $query = Inventory::with(['product' => function($query) {
@@ -126,7 +126,7 @@ class SaleController extends Controller
             ->where('quantity', '!=', 0);
         $inventories = $query->latest()->get();
 
-        return view('sales.edit', compact('sale', 'products','inventories', 'customers'));
+        return view('sales.edit', compact('sale','inventories', 'customers'));
     }
 
     public function update(Request $request, Sale $sale)
