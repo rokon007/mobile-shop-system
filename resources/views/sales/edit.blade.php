@@ -136,6 +136,57 @@
                             <i class="fas fa-plus"></i> Add Item
                         </button>
 
+                        <!-- Payment Section for Due Amount -->
+                        @if($sale->due_amount > 0)
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Record Payment</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="payment_amount">Payment Amount</label>
+                                                    <input type="number" class="form-control" id="payment_amount"
+                                                           name="payment_amount" step="0.01" min="0.01"
+                                                           max="{{ $sale->due_amount }}" value="{{ $sale->due_amount }}">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="payment_method_new">Payment Method</label>
+                                                    <select class="form-control" id="payment_method_new" name="payment_method_new">
+                                                        <option value="cash">Cash</option>
+                                                        <option value="card">Card</option>
+                                                        <option value="bank_transfer">Bank Transfer</option>
+                                                        <option value="mobile_banking">Mobile Banking</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="payment_date">Payment Date</label>
+                                                    <input type="datetime-local" class="form-control" id="payment_date"
+                                                           name="payment_date" value="{{ now()->format('Y-m-d\TH:i') }}">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>&nbsp;</label>
+                                                    <button type="button" class="btn btn-primary btn-block" id="record-payment">
+                                                        <i class="fas fa-money-bill-wave"></i> Record Payment
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         <div class="row mt-3">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -179,6 +230,10 @@
                                                    step="0.01" min="0" style="width: 120px;">
                                         </td>
                                         <td class="text-right" id="paid-display">৳{{ number_format($sale->paid_amount, 2) }}</td>
+                                    </tr>
+                                    <tr class="table-info">
+                                        <td><strong>Due Amount:</strong></td>
+                                        <td class="text-right" id="due-display"><strong>৳{{ number_format($sale->due_amount, 2) }}</strong></td>
                                     </tr>
                                 </table>
                             </div>
@@ -332,6 +387,59 @@
             updateCalculations();
         });
 
+        // Record payment button click
+        document.getElementById('record-payment')?.addEventListener('click', function() {
+            const paymentAmount = parseFloat(document.getElementById('payment_amount').value) || 0;
+            const paymentMethod = document.getElementById('payment_method_new').value;
+            const paymentDate = document.getElementById('payment_date').value;
+
+            if (paymentAmount <= 0) {
+                alert('Please enter a valid payment amount.');
+                return;
+            }
+
+            if (paymentAmount > {{ $sale->due_amount }}) {
+                alert('Payment amount cannot exceed due amount.');
+                return;
+            }
+
+            // Send AJAX request to record payment
+            fetch('{{ route("sales.payment", $sale) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    amount: paymentAmount,
+                    payment_method: paymentMethod,
+                    payment_date: paymentDate
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Payment recorded successfully!');
+                    // Update the displayed amounts
+                    document.getElementById('paid-display').textContent = '৳' + parseFloat(data.new_paid_amount).toFixed(2);
+                    document.getElementById('due-display').innerHTML = '<strong>৳' + parseFloat(data.new_due_amount).toFixed(2) + '</strong>';
+                    document.getElementById('paid_amount').value = data.new_paid_amount;
+
+                    // Hide payment section if fully paid
+                    if (data.new_due_amount <= 0) {
+                        document.querySelector('.card.bg-light').style.display = 'none';
+                        document.getElementById('payment_status').value = 'paid';
+                    }
+                } else {
+                    alert('Error recording payment: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error recording payment. Please try again.');
+            });
+        });
+
         function updateCalculations() {
             let subtotal = 0;
 
@@ -364,6 +472,10 @@
             // Update paid amount display
             const paidAmount = parseFloat(document.getElementById('paid_amount').value) || 0;
             document.getElementById('paid-display').textContent = '৳' + paidAmount.toFixed(2);
+
+            // Update due amount
+            const dueAmount = totalAmount - paidAmount;
+            document.getElementById('due-display').innerHTML = '<strong>৳' + dueAmount.toFixed(2) + '</strong>';
         }
 
         // Initial calculation
