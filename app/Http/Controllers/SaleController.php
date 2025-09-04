@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\SystemSetting;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Inventory;
 
 class SaleController extends Controller
 {
@@ -115,7 +116,17 @@ class SaleController extends Controller
         $products = Product::where('status', 'active')->get();
         $customers = Customer::where('status', 'active')->get();
 
-        return view('sales.edit', compact('sale', 'products', 'customers'));
+        $query = Inventory::with(['product' => function($query) {
+                $query->with(['brand', 'category'])
+                    ->where('status', 'active');
+            }])
+            ->whereHas('product', function($q) {
+                $q->where('status', 'active');
+            })
+            ->where('quantity', '!=', 0);
+        $inventories = $query->latest()->get();
+
+        return view('sales.edit', compact('sale', 'products','inventories', 'customers'));
     }
 
     public function update(Request $request, Sale $sale)

@@ -15,7 +15,7 @@
                     <form action="{{ route('sales.update', $sale) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -33,7 +33,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="sale_date">Sale Date</label>
-                                    <input type="datetime-local" class="form-control" id="sale_date" name="sale_date" 
+                                    <input type="datetime-local" class="form-control" id="sale_date" name="sale_date"
                                            value="{{ $sale->sale_date->format('Y-m-d\TH:i') }}" required>
                                 </div>
                             </div>
@@ -90,27 +90,27 @@
                                     <tr>
                                         <td>
                                             <select class="form-control product-select" name="items[{{ $index }}][product_id]" required>
-                                                @foreach($products as $product)
-                                                    <option value="{{ $product->id }}" 
-                                                            data-price="{{ $product->selling_price }}"
-                                                            {{ $item->product_id == $product->id ? 'selected' : '' }}>
-                                                        {{ $product->name }} ({{ $product->sku }})
+                                                @foreach($inventories as $inventory)
+                                                    <option value="{{ $inventory->id }}"
+                                                            data-price="{{ $inventory->selling_price }}"
+                                                            {{ $item->product_id == $inventory->id ? 'selected' : '' }}>
+                                                        {{ $inventory->product->name }} @if($inventory->imei) ({{ $inventory->imei }}) @else ({{ $inventory->serial_number }}) @endif
                                                     </option>
                                                 @endforeach
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control quantity-input" 
-                                                   name="items[{{ $index }}][quantity]" 
+                                            <input type="number" class="form-control quantity-input"
+                                                   name="items[{{ $index }}][quantity]"
                                                    value="{{ $item->quantity }}" min="1" required>
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control price-input" 
-                                                   name="items[{{ $index }}][unit_price]" 
+                                            <input type="number" class="form-control price-input"
+                                                   name="items[{{ $index }}][unit_price]"
                                                    value="{{ $item->unit_price }}" step="0.01" required>
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control total-input" 
+                                            <input type="number" class="form-control total-input"
                                                    value="{{ $item->total_price }}" readonly>
                                         </td>
                                         <td>
@@ -144,8 +144,8 @@
                                     <tr>
                                         <td>
                                             <strong>Tax Rate (%):</strong>
-                                            <input type="number" class="form-control form-control-sm d-inline" 
-                                                   id="tax_rate" name="tax_rate" value="{{ $sale->tax_rate }}" 
+                                            <input type="number" class="form-control form-control-sm d-inline"
+                                                   id="tax_rate" name="tax_rate" value="{{ $sale->tax_rate }}"
                                                    step="0.01" min="0" max="100" style="width: 80px;">
                                         </td>
                                         <td class="text-right" id="tax-amount">৳{{ number_format($sale->tax_amount, 2) }}</td>
@@ -153,8 +153,8 @@
                                     <tr>
                                         <td>
                                             <strong>Discount:</strong>
-                                            <input type="number" class="form-control form-control-sm d-inline" 
-                                                   id="discount_amount" name="discount_amount" value="{{ $sale->discount_amount }}" 
+                                            <input type="number" class="form-control form-control-sm d-inline"
+                                                   id="discount_amount" name="discount_amount" value="{{ $sale->discount_amount }}"
                                                    step="0.01" min="0" style="width: 100px;">
                                         </td>
                                         <td class="text-right" id="discount-display">৳{{ number_format($sale->discount_amount, 2) }}</td>
@@ -166,8 +166,8 @@
                                     <tr>
                                         <td>
                                             <strong>Paid Amount:</strong>
-                                            <input type="number" class="form-control form-control-sm d-inline" 
-                                                   id="paid_amount" name="paid_amount" value="{{ $sale->paid_amount }}" 
+                                            <input type="number" class="form-control form-control-sm d-inline"
+                                                   id="paid_amount" name="paid_amount" value="{{ $sale->paid_amount }}"
                                                    step="0.01" min="0" style="width: 120px;">
                                         </td>
                                         <td class="text-right" id="paid-display">৳{{ number_format($sale->paid_amount, 2) }}</td>
@@ -195,7 +195,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     let itemIndex = {{ count($sale->items) }};
-    
+
     // Add new item
     document.getElementById('add-item').addEventListener('click', function() {
         const tbody = document.querySelector('#sale-items-table tbody');
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
         itemIndex++;
         updateCalculations();
     });
-    
+
     // Remove item
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-item') || e.target.parentElement.classList.contains('remove-item')) {
@@ -237,17 +237,17 @@ document.addEventListener('DOMContentLoaded', function() {
             updateCalculations();
         }
     });
-    
+
     // Update calculations when inputs change
     document.addEventListener('input', function(e) {
-        if (e.target.classList.contains('quantity-input') || 
+        if (e.target.classList.contains('quantity-input') ||
             e.target.classList.contains('price-input') ||
             e.target.id === 'tax_rate' ||
             e.target.id === 'discount_amount') {
             updateCalculations();
         }
     });
-    
+
     // Update price when product changes
     document.addEventListener('change', function(e) {
         if (e.target.classList.contains('product-select')) {
@@ -258,41 +258,41 @@ document.addEventListener('DOMContentLoaded', function() {
             updateCalculations();
         }
     });
-    
+
     function updateCalculations() {
         let subtotal = 0;
-        
+
         // Calculate item totals and subtotal
         document.querySelectorAll('#sale-items-table tbody tr').forEach(function(row) {
             const quantity = parseFloat(row.querySelector('.quantity-input').value) || 0;
             const price = parseFloat(row.querySelector('.price-input').value) || 0;
             const total = quantity * price;
-            
+
             row.querySelector('.total-input').value = total.toFixed(2);
             subtotal += total;
         });
-        
+
         // Update subtotal
         document.getElementById('subtotal').textContent = '৳' + subtotal.toFixed(2);
-        
+
         // Calculate tax
         const taxRate = parseFloat(document.getElementById('tax_rate').value) || 0;
         const taxAmount = (subtotal * taxRate) / 100;
         document.getElementById('tax-amount').textContent = '৳' + taxAmount.toFixed(2);
-        
+
         // Calculate discount
         const discountAmount = parseFloat(document.getElementById('discount_amount').value) || 0;
         document.getElementById('discount-display').textContent = '৳' + discountAmount.toFixed(2);
-        
+
         // Calculate total
         const totalAmount = subtotal + taxAmount - discountAmount;
         document.getElementById('total-amount').innerHTML = '<strong>৳' + totalAmount.toFixed(2) + '</strong>';
-        
+
         // Update paid amount display
         const paidAmount = parseFloat(document.getElementById('paid_amount').value) || 0;
         document.getElementById('paid-display').textContent = '৳' + paidAmount.toFixed(2);
     }
-    
+
     // Initial calculation
     updateCalculations();
 });
