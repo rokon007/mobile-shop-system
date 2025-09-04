@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Inventory;
 use Illuminate\Support\Facades\DB;
+use App\Models\Payment;
 
 class SaleController extends Controller
 {
@@ -240,13 +241,14 @@ class SaleController extends Controller
             $sale->save();
 
             // পেমেন্ট হিস্ট্রি রেকর্ড করতে চাইলে (যদি আপনার Payment মডেল থাকে)
-            // Payment::create([
-            //     'sale_id' => $sale->id,
-            //     'amount' => $paymentAmount,
-            //     'payment_method' => $request->payment_method,
-            //     'payment_date' => $request->payment_date ?? now(),
-            //     'notes' => $request->notes
-            // ]);
+            Payment::create([
+                'sale_id' => $sale->id,
+                'amount' => $paymentAmount,
+                'payment_method' => $request->payment_method,
+                'payment_date' => $request->payment_date ?? now(),
+                'notes' => "Payment of ৳" . number_format($paymentAmount, 2) . " received against due amount of ৳" . number_format($sale->due_amount, 2),
+                'received_by' => auth()->id()
+            ]);
 
             DB::commit();
 

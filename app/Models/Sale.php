@@ -65,4 +65,12 @@ class Sale extends Model
         });
         return $this->total_amount - $totalCost;
     }
+
+    /**
+     * পেমেন্টগুলোর সাথে সম্পর্ক
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }
