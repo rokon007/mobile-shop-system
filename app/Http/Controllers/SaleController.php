@@ -123,8 +123,8 @@ class SaleController extends Controller
             }])
             ->whereHas('product', function($q) {
                 $q->where('status', 'active');
-            })
-            ->where('quantity', '!=', 0);
+            });
+            // ->where('quantity', '!=', 0);
         $inventories = $query->latest()->get();
 
         return view('sales.edit', compact('sale','inventories', 'customers'));
