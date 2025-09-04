@@ -95,7 +95,7 @@
                 <th>Category</th>
                 <th>IMEI/Serial</th>
                 <th>Configuration</th>
-                <th class="text-right">Price (৳)</th>
+                <th class="text-right">Price (Tk)</th>
             </tr>
         </thead>
         <tbody>
@@ -140,7 +140,7 @@
             @if($inventories->count() > 0)
             <tr>
                 <td colspan="6" style="text-align: right; font-weight: bold;">Total Value:</td>
-                <td class="text-right" style="font-weight: bold;">৳{{ number_format($totalPrice, 2) }}</td>
+                <td class="text-right" style="font-weight: bold;">Tk{{ number_format($totalPrice, 2) }}</td>
             </tr>
             @endif
         </tbody>
@@ -149,7 +149,7 @@
     <div class="summary-total">
         <strong>Inventory Summary:</strong><br>
         Total Products: {{ $inventories->count() }}<br>
-        Total Inventory Value: ৳{{ number_format($totalPrice, 2) }}
+        Total Inventory Value: Tk{{ number_format($totalPrice, 2) }}
     </div>
 
     <div class="footer">
