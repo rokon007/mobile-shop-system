@@ -40,9 +40,9 @@
                                     <td>৳{{ number_format($customer->total_spent, 2) }}</td>
                                     <td>
                                         @if($customer->total_due > 0)
-                                            <span class="badge badge-danger">৳{{ number_format($customer->total_due, 2) }}</span>
+                                            <span class="badge bg-danger">৳{{ number_format($customer->total_due, 2) }}</span>
                                         @else
-                                            <span class="badge badge-success">৳0.00</span>
+                                            <span class="badge bg-success">৳0.00</span>
                                         @endif
                                     </td>
                                     <td>
@@ -53,19 +53,19 @@
                                     <td>
                                         <div class="btn-group" role="group">
                                             <a href="{{ route('customers.show', $customer) }}" class="btn btn-info btn-sm" title="View">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="bi bi-eye"></i>
                                             </a>
                                             <a href="{{ route('customers.edit', $customer) }}" class="btn btn-warning btn-sm" title="Edit">
-                                                <i class="fas fa-edit"></i>
+                                                <i class="bi bi-edit"></i>
                                             </a>
                                             <a href="{{ route('customers.payment-history', $customer) }}" class="btn btn-secondary btn-sm" title="Payment History">
-                                                <i class="fas fa-history"></i>
+                                                <i class="bi bi-history"></i>
                                             </a>
                                             <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this customer?')" title="Delete">
-                                                    <i class="fas fa-trash"></i>
+                                                    <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
                                         </div>
