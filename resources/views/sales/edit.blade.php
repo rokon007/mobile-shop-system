@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>
                 <select class="form-control product-select" name="items[${itemIndex}][inventory_id]" required>
                     @foreach($inventories as $inventory)
-                        <option value="{{ $inventory->product_id }}" data-price="{{ $inventory->selling_price }}">
+                        <option value="{{ $inventory->id }}" data-price="{{ $inventory->selling_price }}">
                             {{ $inventory->product->name }} @if($inventory->imei) ({{ $inventory->imei }}) @else ({{ $inventory->serial_number }}) @endif
                         </option>
                     @endforeach
@@ -230,6 +230,12 @@ document.addEventListener('DOMContentLoaded', function() {
             </td>
         `;
         tbody.appendChild(newRow);
+
+        // Set the price automatically for the new item
+        const select = newRow.querySelector('.product-select');
+        const price = select.options[select.selectedIndex].getAttribute('data-price');
+        newRow.querySelector('.price-input').value = price;
+
         itemIndex++;
         updateCalculations();
     });
