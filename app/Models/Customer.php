@@ -53,4 +53,9 @@ class Customer extends Model
     {
         return $this->sales()->sum('due_amount');
     }
+
+    public function payments()
+    {
+        return $this->hasManyThrough(Payment::class, Sale::class);
+    }
 }

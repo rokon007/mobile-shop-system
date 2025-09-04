@@ -18,11 +18,12 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Name</th>
-                                    <th>Email</th>
+                                    {{-- <th>Email</th> --}}
                                     <th>Phone</th>
                                     <th>Address</th>
                                     <th>Total Orders</th>
                                     <th>Total Spent</th>
+                                    <th>Due</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -32,30 +33,42 @@
                                 <tr>
                                     <td>{{ $customer->id }}</td>
                                     <td>{{ $customer->name }}</td>
-                                    <td>{{ $customer->email }}</td>
+                                    {{-- <td>{{ $customer->email ?? 'N/A' }}</td> --}}
                                     <td>{{ $customer->phone }}</td>
-                                    <td>{{ Str::limit($customer->address, 30) }}</td>
-                                    <td>{{ $customer->sales_count ?? 0 }}</td>
-                                    <td>৳{{ number_format($customer->total_spent ?? 0, 2) }}</td>
+                                    <td>{{ Str::limit($customer->address, 30) ?? 'N/A' }}</td>
+                                    <td>{{ $customer->sales_count }}</td>
+                                    <td>৳{{ number_format($customer->total_spent, 2) }}</td>
+                                    <td>
+                                        @if($customer->total_due > 0)
+                                            <span class="badge badge-danger">৳{{ number_format($customer->total_due, 2) }}</span>
+                                        @else
+                                            <span class="badge badge-success">৳0.00</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         <span class="badge bg-{{ $customer->status == 'active' ? 'success' : 'danger' }}">
                                             {{ ucfirst($customer->status) }}
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('customers.show', $customer) }}" class="btn btn-info btn-sm">
-                                            <i class="bi bi-eye-fill"></i>
-                                        </a>
-                                        <a href="{{ route('customers.edit', $customer) }}" class="btn btn-warning btn-sm">
-                                            <i class="bi bi-pencil-fill"></i>
-                                        </a>
-                                        <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
-                                                <i class="bi bi-trash-fill"></i>
-                                            </button>
-                                        </form>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('customers.show', $customer) }}" class="btn btn-info btn-sm" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('customers.edit', $customer) }}" class="btn btn-warning btn-sm" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{{ route('customers.payment-history', $customer) }}" class="btn btn-secondary btn-sm" title="Payment History">
+                                                <i class="fas fa-history"></i>
+                                            </a>
+                                            <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this customer?')" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                                 @endforeach

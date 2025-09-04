@@ -3,13 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
     public function index()
     {
-        $customers = Customer::latest()->paginate(10);
+        $customers = Customer::withCount(['sales' => function($query) {
+            $query->where('payment_status', '!=', 'cancelled');
+        }])
+        ->withSum('sales as total_spent', 'total_amount')
+        ->withSum('sales as total_due', 'due_amount')
+        ->latest()
+        ->paginate(10);
+
         return view('customers.index', compact('customers'));
     }
 
@@ -43,7 +51,10 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        $customer->load('sales');
+        $customer->load(['sales' => function($query) {
+            $query->with('items.product')->latest();
+        }]);
+
         return view('customers.show', compact('customer'));
     }
 
@@ -85,5 +96,18 @@ class CustomerController extends Controller
         $customer->delete();
         return redirect()->route('customers.index')
             ->with('success', 'Customer deleted successfully.');
+    }
+
+    // New method for payment history
+    public function paymentHistory(Customer $customer)
+    {
+        $payments = Payment::whereHas('sale', function($query) use ($customer) {
+            $query->where('customer_id', $customer->id);
+        })
+        ->with(['sale', 'receivedBy'])
+        ->latest()
+        ->paginate(20);
+
+        return view('customers.payment-history', compact('customer', 'payments'));
     }
 }

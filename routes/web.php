@@ -113,6 +113,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/sales/{sale}/invoice', [SaleController::class, 'invoice'])->name('sales.invoice');
         Route::get('/sales/{sale}/print', [SaleController::class, 'print'])->name('sales.print');
         Route::post('/sales/{sale}/payment', [SaleController::class, 'payment'])->name('sales.payment');
+        Route::get('/customers/{customer}/payment-history', [CustomerController::class, 'paymentHistory'])->name('customers.payment-history');
     });
 
     // Employee Management
