@@ -290,6 +290,7 @@
 
 @section('js')
     <script src="{{asset('assets/plugins/select2/js/select2.min.js')}}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         let itemIndex = {{ count($sale->items) }};
@@ -394,21 +395,36 @@
             const paymentDate = document.getElementById('payment_date').value;
 
             if (paymentAmount <= 0) {
-                alert('Please enter a valid payment amount.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Amount',
+                    text: 'Please enter a valid payment amount.',
+                });
                 return;
             }
 
             if (paymentAmount > {{ $sale->due_amount }}) {
-                alert('Payment amount cannot exceed due amount.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Amount Exceeds Due',
+                    text: 'Payment amount cannot exceed due amount.',
+                });
                 return;
             }
+
+            // Show loading state
+            const recordBtn = document.getElementById('record-payment');
+            const originalText = recordBtn.innerHTML;
+            recordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            recordBtn.disabled = true;
 
             // Send AJAX request to record payment
             fetch('{{ route("sales.payment", $sale) }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify({
                     amount: paymentAmount,
@@ -416,27 +432,64 @@
                     payment_date: paymentDate
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
-                    alert('Payment recorded successfully!');
+                    // Show success message with SweetAlert
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Payment Recorded!',
+                        text: 'Payment has been successfully recorded.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
                     // Update the displayed amounts
                     document.getElementById('paid-display').textContent = '৳' + parseFloat(data.new_paid_amount).toFixed(2);
                     document.getElementById('due-display').innerHTML = '<strong>৳' + parseFloat(data.new_due_amount).toFixed(2) + '</strong>';
                     document.getElementById('paid_amount').value = data.new_paid_amount;
 
-                    // Hide payment section if fully paid
+                    // Update payment status if needed
                     if (data.new_due_amount <= 0) {
-                        document.querySelector('.card.bg-light').style.display = 'none';
                         document.getElementById('payment_status').value = 'paid';
+                    } else if (data.new_paid_amount > 0) {
+                        document.getElementById('payment_status').value = 'partial';
+                    }
+
+                    // Update the payment section
+                    if (data.new_due_amount <= 0) {
+                        // Hide payment section if fully paid
+                        document.querySelector('.card.bg-light').style.display = 'none';
+                    } else {
+                        // Update the max payment amount
+                        document.getElementById('payment_amount').max = data.new_due_amount;
+                        document.getElementById('payment_amount').value = data.new_due_amount;
                     }
                 } else {
-                    alert('Error recording payment: ' + data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed',
+                        text: data.message || 'Error recording payment. Please try again.',
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error recording payment. Please try again.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error recording payment. Please try again.',
+                });
+            })
+            .finally(() => {
+                // Restore button state
+                recordBtn.innerHTML = originalText;
+                recordBtn.disabled = false;
             });
         });
 
