@@ -94,7 +94,7 @@
                                     @foreach($sale->items as $index => $item)
                                     <tr>
                                         <td>
-                                            <select class="single-select product-select" name="items[{{ $index }}][inventory_id]" id="productSelect" required>
+                                            <select class="single-select product-select" name="items[{{ $index }}][inventory_id]" required>
                                                 @foreach($inventories as $inventory)
                                                     <option value="{{ $inventory->id }}"
                                                             data-price="{{ $inventory->selling_price }}"
@@ -106,7 +106,6 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-
                                         </td>
                                         <td>
                                             <input type="number" class="form-control quantity-input"
@@ -202,179 +201,165 @@
 @endsection
 
 <style>
-     /* Add Select2 styling to match Skodash theme */
-        .select2-container--default .select2-selection--single {
-            height: 38px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-        }
+    /* Add Select2 styling to match Skodash theme */
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
 
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 36px;
-            padding-left: 12px;
-        }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px;
+        padding-left: 12px;
+    }
 
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 36px;
-        }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
 
-        .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: #7367f0;
-            color: white;
-        }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #7367f0;
+        color: white;
+    }
 
-        .select2-container--default .select2-results__option[aria-selected=true] {
-            background-color: #f8f8f8;
-            color: #333;
-        }
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background-color: #f8f8f8;
+        color: #333;
+    }
 
-        .select2-container--default .select2-results__option[aria-selected=true]:hover {
-            background-color: #7367f0;
-            color: white;
-        }
+    .select2-container--default .select2-results__option[aria-selected=true]:hover {
+        background-color: #7367f0;
+        color: white;
+    }
+</style>
 
-    </style>
+@section('js')
+    <script src="{{asset('assets/plugins/select2/js/select2.min.js')}}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let itemIndex = {{ count($sale->items) }};
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    let itemIndex = {{ count($sale->items) }};
+        // Initialize Select2 for existing product selects
+        $('.single-select').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: "Select Product",
+            allowClear: true
+        });
 
-    // Add new item
-    document.getElementById('add-item').addEventListener('click', function() {
-        const tbody = document.querySelector('#sale-items-table tbody');
-        const newRow = document.createElement('tr');
-        newRow.innerHTML = `
-            <td>
-                <select class="form-control product-select" name="items[${itemIndex}][inventory_id]" required>
-                    @foreach($inventories as $inventory)
-                        <option value="{{ $inventory->id }}" data-price="{{ $inventory->selling_price }}">
-                            {{ $inventory->product->name }} @if($inventory->imei) ({{ $inventory->imei }}) @else ({{ $inventory->serial_number }}) @endif
-                        </option>
-                    @endforeach
-                </select>
-            </td>
-            <td>
-                <input type="number" class="form-control quantity-input" name="items[${itemIndex}][quantity]" value="1" min="1" required>
-            </td>
-            <td>
-                <input type="number" class="form-control price-input" name="items[${itemIndex}][unit_price]" step="0.01" required>
-            </td>
-            <td>
-                <input type="number" class="form-control total-input" readonly>
-            </td>
-            <td>
-                <button type="button" class="btn btn-danger btn-sm remove-item">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
-        tbody.appendChild(newRow);
+        // Add new item
+        document.getElementById('add-item').addEventListener('click', function() {
+            const tbody = document.querySelector('#sale-items-table tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>
+                    <select class="single-select product-select" name="items[${itemIndex}][inventory_id]" required>
+                        @foreach($inventories as $inventory)
+                            <option value="{{ $inventory->id }}" data-price="{{ $inventory->selling_price }}">
+                                {{ $inventory->product->name }} @if($inventory->imei) ({{ $inventory->imei }}) @else ({{ $inventory->serial_number }}) @endif
+                            </option>
+                        @endforeach
+                    </select>
+                </td>
+                <td>
+                    <input type="number" class="form-control quantity-input" name="items[${itemIndex}][quantity]" value="1" min="1" required>
+                </td>
+                <td>
+                    <input type="number" class="form-control price-input" name="items[${itemIndex}][unit_price]" step="0.01" required>
+                </td>
+                <td>
+                    <input type="number" class="form-control total-input" readonly>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm remove-item">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(newRow);
 
-        // Set the price automatically for the new item
-        const select = newRow.querySelector('.product-select');
-        const price = select.options[select.selectedIndex].getAttribute('data-price');
-        newRow.querySelector('.price-input').value = price;
+            // Initialize Select2 for the new select element
+            $(newRow).find('.single-select').select2({
+                theme: 'bootstrap4',
+                width: '100%',
+                placeholder: "Select Product",
+                allowClear: true
+            });
 
-        itemIndex++;
-        updateCalculations();
-    });
+            // Set the price automatically for the new item
+            const select = newRow.querySelector('.product-select');
+            const price = select.options[select.selectedIndex].getAttribute('data-price');
+            newRow.querySelector('.price-input').value = price;
 
-    // Remove item
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-item') || e.target.parentElement.classList.contains('remove-item')) {
-            e.target.closest('tr').remove();
+            itemIndex++;
             updateCalculations();
-        }
-    });
+        });
 
-    // Update calculations when inputs change
-    document.addEventListener('input', function(e) {
-        if (e.target.classList.contains('quantity-input') ||
-            e.target.classList.contains('price-input') ||
-            e.target.id === 'tax_rate' ||
-            e.target.id === 'discount_amount') {
-            updateCalculations();
-        }
-    });
+        // Remove item
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-item') || e.target.parentElement.classList.contains('remove-item')) {
+                // Destroy Select2 before removing the row to prevent memory leaks
+                $(e.target.closest('tr')).find('.single-select').select2('destroy');
+                e.target.closest('tr').remove();
+                updateCalculations();
+            }
+        });
 
-    // Update price when product changes
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('product-select')) {
+        // Update calculations when inputs change
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('quantity-input') ||
+                e.target.classList.contains('price-input') ||
+                e.target.id === 'tax_rate' ||
+                e.target.id === 'discount_amount') {
+                updateCalculations();
+            }
+        });
+
+        // Update price when product changes (using event delegation for dynamically added elements)
+        $(document).on('change', '.product-select', function(e) {
             const selectedOption = e.target.options[e.target.selectedIndex];
             const price = selectedOption.getAttribute('data-price');
             const row = e.target.closest('tr');
             row.querySelector('.price-input').value = price;
             updateCalculations();
-        }
-    });
-
-    function updateCalculations() {
-        let subtotal = 0;
-
-        // Calculate item totals and subtotal
-        document.querySelectorAll('#sale-items-table tbody tr').forEach(function(row) {
-            const quantity = parseFloat(row.querySelector('.quantity-input').value) || 0;
-            const price = parseFloat(row.querySelector('.price-input').value) || 0;
-            const total = quantity * price;
-
-            row.querySelector('.total-input').value = total.toFixed(2);
-            subtotal += total;
         });
 
-        // Update subtotal
-        document.getElementById('subtotal').textContent = '৳' + subtotal.toFixed(2);
+        function updateCalculations() {
+            let subtotal = 0;
 
-        // Calculate tax
-        const taxRate = parseFloat(document.getElementById('tax_rate').value) || 0;
-        const taxAmount = (subtotal * taxRate) / 100;
-        document.getElementById('tax-amount').textContent = '৳' + taxAmount.toFixed(2);
+            // Calculate item totals and subtotal
+            document.querySelectorAll('#sale-items-table tbody tr').forEach(function(row) {
+                const quantity = parseFloat(row.querySelector('.quantity-input').value) || 0;
+                const price = parseFloat(row.querySelector('.price-input').value) || 0;
+                const total = quantity * price;
 
-        // Calculate discount
-        const discountAmount = parseFloat(document.getElementById('discount_amount').value) || 0;
-        document.getElementById('discount-display').textContent = '৳' + discountAmount.toFixed(2);
-
-        // Calculate total
-        const totalAmount = subtotal + taxAmount - discountAmount;
-        document.getElementById('total-amount').innerHTML = '<strong>৳' + totalAmount.toFixed(2) + '</strong>';
-
-        // Update paid amount display
-        const paidAmount = parseFloat(document.getElementById('paid_amount').value) || 0;
-        document.getElementById('paid-display').textContent = '৳' + paidAmount.toFixed(2);
-    }
-
-    // Initial calculation
-    updateCalculations();
-});
-</script>
-
-<script>
-    document.addEventListener('livewire:initialized', () => {
-        function initSelect2() {
-            $('#productSelect').select2({
-                theme: 'bootstrap4',
-                width: '100%',
-                placeholder: "Select Customer",
-                allowClear: true,
-                dropdownParent: $('.cart-card') // Ensure proper dropdown positioning
-            }).on('change', function() {
-                @this.set('selectedCustomer', $(this).val(), true);
+                row.querySelector('.total-input').value = total.toFixed(2);
+                subtotal += total;
             });
+
+            // Update subtotal
+            document.getElementById('subtotal').textContent = '৳' + subtotal.toFixed(2);
+
+            // Calculate tax
+            const taxRate = parseFloat(document.getElementById('tax_rate').value) || 0;
+            const taxAmount = (subtotal * taxRate) / 100;
+            document.getElementById('tax-amount').textContent = '৳' + taxAmount.toFixed(2);
+
+            // Calculate discount
+            const discountAmount = parseFloat(document.getElementById('discount_amount').value) || 0;
+            document.getElementById('discount-display').textContent = '৳' + discountAmount.toFixed(2);
+
+            // Calculate total
+            const totalAmount = subtotal + taxAmount - discountAmount;
+            document.getElementById('total-amount').innerHTML = '<strong>৳' + totalAmount.toFixed(2) + '</strong>';
+
+            // Update paid amount display
+            const paidAmount = parseFloat(document.getElementById('paid_amount').value) || 0;
+            document.getElementById('paid-display').textContent = '৳' + paidAmount.toFixed(2);
         }
 
-        // Initialize on load
-        initSelect2();
-
-        // Reinitialize when Livewire updates
-        Livewire.on('update-customer-select', (value) => {
-            $('#productSelect').val(value).trigger('change');
-
-            // Destroy and recreate Select2 to prevent styling issues
-            $('#productSelect').select2('destroy');
-            initSelect2();
-        });
+        // Initial calculation
+        updateCalculations();
     });
-</script>
-
-@section('js')
-    <script src="{{asset('assets/plugins/select2/js/select2.min.js')}}"></script>
+    </script>
 @endsection
