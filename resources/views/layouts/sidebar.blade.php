@@ -169,6 +169,9 @@
                 <li class="{{ request()->routeIs('reports.profit-loss') ? 'active' : '' }}">
                     <a href="{{ route('reports.profit-loss') }}"><i class="bi bi-arrow-right-short"></i>Profit & Loss</a>
                 </li>
+                <li class="{{ request()->routeIs('reports.product') ? 'active' : '' }}">
+                    <a href="{{ route('reports.product') }}"><i class="bi bi-arrow-right-short"></i>Products Report</a>
+                </li>
                 <li class="{{ request()->routeIs('reports.inventory') ? 'active' : '' }}">
                     <a href="{{ route('reports.inventory') }}"><i class="bi bi-arrow-right-short"></i>Inventory Report</a>
                 </li>
