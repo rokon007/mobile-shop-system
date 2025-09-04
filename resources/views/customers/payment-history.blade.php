@@ -47,7 +47,7 @@
                                 <div class="card-body text-center">
                                     <h6>Status</h6>
                                     <h3>
-                                        <span class="badge badge-{{ $customer->status == 'active' ? 'success' : 'danger' }}">
+                                        <span class="badge bg-{{ $customer->status == 'active' ? 'success' : 'danger' }}">
                                             {{ ucfirst($customer->status) }}
                                         </span>
                                     </h3>
@@ -79,7 +79,7 @@
                                     </td>
                                     <td>৳{{ number_format($payment->amount, 2) }}</td>
                                     <td>
-                                        <span class="badge badge-info">
+                                        <span class="badge bg-info">
                                             {{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}
                                         </span>
                                     </td>

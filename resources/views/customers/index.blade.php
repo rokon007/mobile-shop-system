@@ -12,6 +12,40 @@
                     </a>
                 </div>
                 <div class="card-body">
+                    <!-- Search Box -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <input type="text" id="searchInput" class="form-control" placeholder="Search by name or phone number...">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <select id="statusFilter" class="form-control">
+                                    <option value="">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <select id="dueFilter" class="form-control">
+                                    <option value="">All Customers</option>
+                                    <option value="has_due">Has Due</option>
+                                    <option value="no_due">No Due</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="table-responsive">
                         <table class="table table-striped table-bordered">
                             <thead>
@@ -28,9 +62,9 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="customersTableBody">
                                 @foreach($customers as $customer)
-                                <tr>
+                                <tr class="customer-row" data-name="{{ strtolower($customer->name) }}" data-phone="{{ $customer->phone }}" data-status="{{ $customer->status }}" data-due="{{ $customer->total_due > 0 ? 'has_due' : 'no_due' }}">
                                     <td>{{ $customer->id }}</td>
                                     <td>{{ $customer->name }}</td>
                                     {{-- <td>{{ $customer->email ?? 'N/A' }}</td> --}}
@@ -82,3 +116,57 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const dueFilter = document.getElementById('dueFilter');
+    const customerRows = document.querySelectorAll('.customer-row');
+
+    function filterCustomers() {
+        const searchText = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+        const dueValue = dueFilter.value;
+
+        customerRows.forEach(row => {
+            const name = row.getAttribute('data-name');
+            const phone = row.getAttribute('data-phone');
+            const status = row.getAttribute('data-status');
+            const due = row.getAttribute('data-due');
+
+            const nameMatch = name.includes(searchText);
+            const phoneMatch = phone.includes(searchText);
+            const statusMatch = statusValue === '' || status === statusValue;
+            const dueMatch = dueValue === '' || due === dueValue;
+
+            if ((nameMatch || phoneMatch) && statusMatch && dueMatch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    searchInput.addEventListener('input', filterCustomers);
+    statusFilter.addEventListener('change', filterCustomers);
+    dueFilter.addEventListener('change', filterCustomers);
+
+    // Initialize filters based on URL parameters if any
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('search')) {
+        searchInput.value = urlParams.get('search');
+    }
+    if (urlParams.has('status')) {
+        statusFilter.value = urlParams.get('status');
+    }
+    if (urlParams.has('due')) {
+        dueFilter.value = urlParams.get('due');
+    }
+
+    // Apply filters on page load
+    filterCustomers();
+});
+</script>
+@endpush
