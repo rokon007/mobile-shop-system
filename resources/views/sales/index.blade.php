@@ -285,7 +285,7 @@ function filterSales() {
                                     <td>৳{{ number_format($sale->total_amount, 2) }}</td>
                                     <td>
                                         <span class="badge bg-{{ $sale->payment_status == 'paid' ? 'success' : ($sale->payment_status == 'partial' ? 'warning' : 'danger') }}">
-                                            {{ ucfirst($sale->payment_status) }}
+                                            {{ ucfirst($sale->payment_status) }} {{ $sale->due_amount > 0 ? 'Due: ৳' . number_format($sale->due_amount, 2) : '' }}
                                         </span>
                                     </td>
                                     <td>
