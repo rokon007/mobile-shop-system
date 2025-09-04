@@ -10,10 +10,12 @@ use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Exports\SalesExport;
+use App\Exports\ProductExport;
 use Maatwebsite\Excel\Facades\Excel;
 use PDF;
 
@@ -63,11 +65,33 @@ class ReportController extends Controller
                 return $this->exportCustomer($request);
             case 'profit-loss':
                 return $this->exportProfitLoss($request);
+            case 'product':
+                return $this->exportProduct($request);
             default:
                 return back()->with('error', 'Invalid export type');
         }
     }
 
+    private function exportProduct($request)
+    {
+        $query = Inventory::with(['product' => function($query) {
+                $query->with(['brand', 'category'])
+                    ->where('status', 'active');
+            }])
+            ->whereHas('product', function($q) {
+                $q->where('status', 'active');
+            })
+            ->where('quantity', '!=', 0);
+
+        $inventories = $query->latest()->get();
+
+        if ($request->export == 'excel') {
+            return Excel::download(new ProductExport($inventories), 'products-report-'.now()->format('Y-m-d').'.xlsx');
+        } else {
+            $pdf = PDF::loadView('reports.exports.products-pdf', compact('inventories'));
+            return $pdf->download('products-report-'.now()->format('Y-m-d').'.pdf');
+        }
+    }
     private function exportSales($request)
     {
         $query = Sale::with(['customer', 'items.product']);
@@ -133,6 +157,11 @@ class ReportController extends Controller
         $customers = Customer::orderBy('name')->get();
 
         return view('reports.sales', compact('sales', 'summary', 'customers'));
+    }
+
+    public function product()
+    {
+        return view('reports.product-list');
     }
 
     public function profitLoss(Request $request)
