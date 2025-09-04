@@ -203,9 +203,9 @@ document.addEventListener('DOMContentLoaded', function() {
         newRow.innerHTML = `
             <td>
                 <select class="form-control product-select" name="items[${itemIndex}][product_id]" required>
-                    @foreach($products as $product)
-                        <option value="{{ $product->id }}" data-price="{{ $product->selling_price }}">
-                            {{ $product->name }} ({{ $product->sku }})
+                    @foreach($inventories as $inventory)
+                        <option value="{{ $inventory->product_id }}" data-price="{{ $inventory->selling_price }}">
+                            {{ $inventory->product->name }} @if($inventory->imei) ({{ $inventory->imei }}) @else ({{ $inventory->serial_number }}) @endif
                         </option>
                     @endforeach
                 </select>
