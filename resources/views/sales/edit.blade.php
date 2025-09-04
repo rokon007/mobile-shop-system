@@ -389,6 +389,111 @@
         });
 
         // Record payment button click
+        // document.getElementById('record-payment')?.addEventListener('click', function() {
+        //     const paymentAmount = parseFloat(document.getElementById('payment_amount').value) || 0;
+        //     const paymentMethod = document.getElementById('payment_method_new').value;
+        //     const paymentDate = document.getElementById('payment_date').value;
+
+        //     if (paymentAmount <= 0) {
+        //         Swal.fire({
+        //             icon: 'warning',
+        //             title: 'Invalid Amount',
+        //             text: 'Please enter a valid payment amount.',
+        //         });
+        //         return;
+        //     }
+
+        //     if (paymentAmount > {{ $sale->due_amount }}) {
+        //         Swal.fire({
+        //             icon: 'warning',
+        //             title: 'Amount Exceeds Due',
+        //             text: 'Payment amount cannot exceed due amount.',
+        //         });
+        //         return;
+        //     }
+
+        //     // Show loading state
+        //     const recordBtn = document.getElementById('record-payment');
+        //     const originalText = recordBtn.innerHTML;
+        //     recordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        //     recordBtn.disabled = true;
+
+        //     // Send AJAX request to record payment
+        //     fetch('{{ route("sales.payment", $sale) }}', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        //             'X-Requested-With': 'XMLHttpRequest'
+        //         },
+        //         body: JSON.stringify({
+        //             amount: paymentAmount,
+        //             payment_method: paymentMethod,
+        //             payment_date: paymentDate
+        //         })
+        //     })
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error('Network response was not ok');
+        //         }
+        //         return response.json();
+        //     })
+        //     .then(data => {
+        //         if (data.success) {
+        //             // Show success message with SweetAlert
+        //             Swal.fire({
+        //                 icon: 'success',
+        //                 title: 'Payment Recorded!',
+        //                 text: 'Payment has been successfully recorded.',
+        //                 timer: 2000,
+        //                 showConfirmButton: false
+        //             });
+
+        //             // Update the displayed amounts
+        //             document.getElementById('paid-display').textContent = '৳' + parseFloat(data.new_paid_amount).toFixed(2);
+        //             document.getElementById('due-display').innerHTML = '<strong>৳' + parseFloat(data.new_due_amount).toFixed(2) + '</strong>';
+        //             document.getElementById('paid_amount').value = data.new_paid_amount;
+
+        //             // Update payment status if needed
+        //             if (data.new_due_amount <= 0) {
+        //                 document.getElementById('payment_status').value = 'paid';
+        //             } else if (data.new_paid_amount > 0) {
+        //                 document.getElementById('payment_status').value = 'partial';
+        //             }
+
+        //             // Update the payment section
+        //             if (data.new_due_amount <= 0) {
+        //                 // Hide payment section if fully paid
+        //                 document.querySelector('.card.bg-light').style.display = 'none';
+        //             } else {
+        //                 // Update the max payment amount
+        //                 document.getElementById('payment_amount').max = data.new_due_amount;
+        //                 document.getElementById('payment_amount').value = data.new_due_amount;
+        //             }
+        //         } else {
+        //             Swal.fire({
+        //                 icon: 'error',
+        //                 title: 'Payment Failed',
+        //                 text: data.message || 'Error recording payment. Please try again.',
+        //             });
+        //         }
+        //     })
+        //     .catch(error => {
+        //         console.error('Error:', error);
+        //         Swal.fire({
+        //             icon: 'error',
+        //             title: 'Error',
+        //             text: 'Error recording payment. Please try again.',
+        //         });
+        //     })
+        //     .finally(() => {
+        //         // Restore button state
+        //         recordBtn.innerHTML = originalText;
+        //         recordBtn.disabled = false;
+        //     });
+        // });
+
+        // Record payment button click
         document.getElementById('record-payment')?.addEventListener('click', function() {
             const paymentAmount = parseFloat(document.getElementById('payment_amount').value) || 0;
             const paymentMethod = document.getElementById('payment_method_new').value;
@@ -397,8 +502,8 @@
             if (paymentAmount <= 0) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Invalid Amount',
-                    text: 'Please enter a valid payment amount.',
+                    title: 'অবৈধ পরিমাণ',
+                    text: 'দয়া করে একটি বৈধ পেমেন্ট পরিমাণ লিখুন।',
                 });
                 return;
             }
@@ -406,8 +511,8 @@
             if (paymentAmount > {{ $sale->due_amount }}) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Amount Exceeds Due',
-                    text: 'Payment amount cannot exceed due amount.',
+                    title: 'পরিমাণ বেশি',
+                    text: 'পেমেন্টের পরিমাণ বাকি টাকার চেয়ে বেশি হতে পারে না।',
                 });
                 return;
             }
@@ -415,22 +520,20 @@
             // Show loading state
             const recordBtn = document.getElementById('record-payment');
             const originalText = recordBtn.innerHTML;
-            recordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            recordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> প্রসেসিং...';
             recordBtn.disabled = true;
+
+            // AJAX request data preparation
+            const formData = new FormData();
+            formData.append('amount', paymentAmount);
+            formData.append('payment_method', paymentMethod);
+            formData.append('payment_date', paymentDate);
+            formData.append('_token', '{{ csrf_token() }}');
 
             // Send AJAX request to record payment
             fetch('{{ route("sales.payment", $sale) }}', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    amount: paymentAmount,
-                    payment_method: paymentMethod,
-                    payment_date: paymentDate
-                })
+                body: formData
             })
             .then(response => {
                 if (!response.ok) {
@@ -443,8 +546,8 @@
                     // Show success message with SweetAlert
                     Swal.fire({
                         icon: 'success',
-                        title: 'Payment Recorded!',
-                        text: 'Payment has been successfully recorded.',
+                        title: 'পেমেন্ট রেকর্ড হয়েছে!',
+                        text: 'পেমেন্ট সফলভাবে রেকর্ড করা হয়েছে।',
                         timer: 2000,
                         showConfirmButton: false
                     });
@@ -457,24 +560,24 @@
                     // Update payment status if needed
                     if (data.new_due_amount <= 0) {
                         document.getElementById('payment_status').value = 'paid';
-                    } else if (data.new_paid_amount > 0) {
-                        document.getElementById('payment_status').value = 'partial';
-                    }
-
-                    // Update the payment section
-                    if (data.new_due_amount <= 0) {
                         // Hide payment section if fully paid
                         document.querySelector('.card.bg-light').style.display = 'none';
-                    } else {
+                    } else if (data.new_paid_amount > 0) {
+                        document.getElementById('payment_status').value = 'partial';
                         // Update the max payment amount
                         document.getElementById('payment_amount').max = data.new_due_amount;
                         document.getElementById('payment_amount').value = data.new_due_amount;
                     }
+
+                    // Reload the page after 2 seconds to reflect changes
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Payment Failed',
-                        text: data.message || 'Error recording payment. Please try again.',
+                        title: 'পেমেন্ট ব্যর্থ',
+                        text: data.message || 'পেমেন্ট রেকর্ড করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।',
                     });
                 }
             })
@@ -482,8 +585,8 @@
                 console.error('Error:', error);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'Error recording payment. Please try again.',
+                    title: 'ত্রুটি',
+                    text: 'পেমেন্ট রেকর্ড করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।',
                 });
             })
             .finally(() => {

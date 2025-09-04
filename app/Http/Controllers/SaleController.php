@@ -9,6 +9,7 @@ use App\Models\SystemSetting;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Inventory;
+use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
 {
@@ -195,23 +196,74 @@ class SaleController extends Controller
         return view('sales.print', compact('sale', 'settings'));
     }
 
+    // public function payment(Request $request, Sale $sale)
+    // {
+    //     $request->validate([
+    //         'amount' => 'required|numeric|min:0|max:' . $sale->due_amount,
+    //         'payment_method' => 'required|in:cash,card,bank_transfer',
+    //     ]);
+
+    //     $sale->increment('paid_amount', $request->amount);
+    //     $sale->decrement('due_amount', $request->amount);
+
+    //     if ($sale->due_amount <= 0) {
+    //         $sale->update(['payment_status' => 'paid']);
+    //     } else {
+    //         $sale->update(['payment_status' => 'partial']);
+    //     }
+
+    //     return back()->with('success', 'Payment recorded successfully!');
+    // }
+
     public function payment(Request $request, Sale $sale)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:0|max:' . $sale->due_amount,
-            'payment_method' => 'required|in:cash,card,bank_transfer',
+            'amount' => 'required|numeric|min:0.01|max:' . $sale->due_amount,
+            'payment_method' => 'required|in:cash,card,bank_transfer,mobile_banking',
+            'payment_date' => 'nullable|date'
         ]);
 
-        $sale->increment('paid_amount', $request->amount);
-        $sale->decrement('due_amount', $request->amount);
+        try {
+            DB::beginTransaction();
 
-        if ($sale->due_amount <= 0) {
-            $sale->update(['payment_status' => 'paid']);
-        } else {
-            $sale->update(['payment_status' => 'partial']);
+            $paymentAmount = $request->amount;
+
+            $sale->paid_amount += $paymentAmount;
+            $sale->due_amount -= $paymentAmount;
+
+            if ($sale->due_amount <= 0) {
+                $sale->payment_status = 'paid';
+            } else {
+                $sale->payment_status = 'partial';
+            }
+
+            $sale->save();
+
+            // পেমেন্ট হিস্ট্রি রেকর্ড করতে চাইলে (যদি আপনার Payment মডেল থাকে)
+            // Payment::create([
+            //     'sale_id' => $sale->id,
+            //     'amount' => $paymentAmount,
+            //     'payment_method' => $request->payment_method,
+            //     'payment_date' => $request->payment_date ?? now(),
+            //     'notes' => $request->notes
+            // ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment recorded successfully!',
+                'new_paid_amount' => $sale->paid_amount,
+                'new_due_amount' => $sale->due_amount
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error recording payment: ' . $e->getMessage()
+            ], 500);
         }
-
-        return back()->with('success', 'Payment recorded successfully!');
     }
 
     private function generateInvoiceNumber()
