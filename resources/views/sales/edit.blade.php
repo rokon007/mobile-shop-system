@@ -25,7 +25,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="customer_id">Customer</label>
-                                    <select class="form-control" id="customer_id" name="customer_id">
+                                    <select class="form-control single-select" id="customer_id" name="customer_id">
                                         <option value="">Walk-in Customer</option>
                                         @foreach($customers as $customer)
                                             <option value="{{ $customer->id }}" {{ $sale->customer_id == $customer->id ? 'selected' : '' }}>
@@ -239,8 +239,16 @@
     document.addEventListener('DOMContentLoaded', function() {
         let itemIndex = {{ count($sale->items) }};
 
+        // Initialize Select2 for customer dropdown
+        $('#customer_id').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: "Select Customer",
+            allowClear: true
+        });
+
         // Initialize Select2 for existing product selects
-        $('.single-select').select2({
+        $('.product-select').select2({
             theme: 'bootstrap4',
             width: '100%',
             placeholder: "Select Product",
@@ -279,7 +287,7 @@
             tbody.appendChild(newRow);
 
             // Initialize Select2 for the new select element
-            $(newRow).find('.single-select').select2({
+            $(newRow).find('.product-select').select2({
                 theme: 'bootstrap4',
                 width: '100%',
                 placeholder: "Select Product",
