@@ -282,7 +282,7 @@
         <div class="widget-content widget-content-area br-8">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Available Backups</h4>
+                    <h4 class="card-title">Database Backups</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -326,7 +326,7 @@
                 </div>
                 <div class="card-footer">
                     <button class="btn btn-success" id="create-backup-btn">
-                        <i class="fas fa-plus-circle"></i> Create New Backup
+                        <i class="fas fa-plus-circle"></i> Create Database Backup
                     </button>
                 </div>
             </div>
@@ -361,28 +361,62 @@
 </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
     // Create backup button
     $('#create-backup-btn').click(function() {
+        const $button = $(this);
+
+        Swal.fire({
+            title: 'Creating Database Backup',
+            text: 'Please wait while we create a backup of your database...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading()
+            }
+        });
+
         $.ajax({
             url: "{{ route('settings.backup') }}",
             method: 'POST',
             data: {
                 _token: "{{ csrf_token() }}"
             },
-            beforeSend: function() {
-                $('#create-backup-btn').prop('disabled', true)
-                    .html('<i class="fas fa-spinner fa-spin"></i> Creating...');
-            },
             success: function(response) {
-                toastr.success(response.message || 'Backup created successfully');
-                setTimeout(() => location.reload(), 1500);
+                Swal.close();
+
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.message,
+                        timer: 3000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message
+                    });
+                }
             },
             error: function(xhr) {
-                toastr.error(xhr.responseJSON.message || 'Backup failed');
-                $('#create-backup-btn').prop('disabled', false)
-                    .html('<i class="fas fa-plus-circle"></i> Create New Backup');
+                Swal.close();
+
+                let errorMessage = 'Database backup failed. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage
+                });
             }
         });
     });

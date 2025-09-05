@@ -90,10 +90,31 @@ class SettingController extends Controller
     public function backup()
     {
         try {
-            Artisan::call('backup:run');
-            return back()->with('success', 'Backup created successfully');
+            // Run the database-only backup command
+            Artisan::call('backup:run', ['--only-db' => true]);
+
+            // Get the output of the command
+            $output = Artisan::output();
+
+            // Check if backup was successful
+            if (strpos($output, 'Backup completed!') !== false) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Database backup created successfully'
+                ]);
+            } else {
+                \Log::error('Database backup failed. Artisan output: ' . $output);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Database backup process completed but may not have been successful. Check logs for details.'
+                ], 500);
+            }
         } catch (\Exception $e) {
-            return back()->with('error', 'Backup failed: ' . $e->getMessage());
+            \Log::error('Database backup exception: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Database backup failed: ' . $e->getMessage()
+            ], 500);
         }
     }
 
