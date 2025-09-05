@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('paid_amount', 15, 2)->default(0);
             $table->decimal('due_amount', 15, 2)->default(0);
             $table->enum('payment_status', ['pending', 'partial', 'paid'])->default('pending');
-            $table->enum('payment_method', ['cash', 'card', 'mobile_banking', 'emi', 'bank_transfer'])->default('cash');
+            $table->enum('payment_method', ['cash', 'card', 'bikash', 'nagad', 'roket'])->default('cash');
             $table->text('note')->nullable();
             $table->enum('sale_type', ['retail', 'wholesale', 'online'])->default('retail');
             $table->boolean('is_emi')->default(false);

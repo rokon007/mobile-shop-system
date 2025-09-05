@@ -262,7 +262,7 @@ class PointOfSale extends Component
                     'amount' => $this->paidAmount,
                     'payment_method' => $this->paymentMethod,
                     'payment_date' => now(),
-                    'notes' => "Payment of " . $this->paidAmount . " received against total amount of " . $this->total,
+                    'notes' => "Payment of ৳" . number_format($this->paidAmount, 2) . " received for invoice " . $sale->invoice_no . " against total amount of ৳" . number_format($this->total, 2),
                     'received_by' => auth()->id()
                 ]);
             }
