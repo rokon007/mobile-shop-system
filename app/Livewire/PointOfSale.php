@@ -8,6 +8,7 @@ use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\SystemSetting;
 use App\Models\Inventory;
+use App\Models\Payment; // Add Payment model import
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 
@@ -29,43 +30,6 @@ class PointOfSale extends Component
     public $imeiNumbers = [];
     public $serialNumbers = [];
 
-    // public function addToCart($productId)
-    // {
-    //     $product = Product::find($productId);
-
-    //     if (!$product || $product->stock_quantity <= 0) {
-    //         session()->flash('error', 'Product not available!');
-    //         return;
-    //     }
-
-    //     $existingIndex = collect($this->cart)->search(function ($item) use ($productId) {
-    //         return $item['product_id'] == $productId;
-    //     });
-
-    //     if ($existingIndex !== false) {
-    //         if ($this->cart[$existingIndex]['quantity'] >= $product->stock_quantity) {
-    //             session()->flash('error', 'Insufficient stock!');
-    //             return;
-    //         }
-    //         $this->cart[$existingIndex]['quantity']++;
-
-    //         // Add empty IMEI/Serial for new quantity
-    //         // $newIndex = $this->cart[$existingIndex]['quantity'] - 1;
-    //         // $this->cart[$existingIndex]['imei_numbers'][$newIndex] = '';
-    //         // $this->cart[$existingIndex]['serial_numbers'][$newIndex] = '';
-    //     } else {
-    //         $this->cart[] = [
-    //             'product_id' => $product->id,
-    //             'name' => $product->name,
-    //             'price' => $product->selling_price,
-    //             'quantity' => 1,
-    //             'stock' => $product->stock_quantity,
-    //             'imei_numbers' => [''],
-    //             'serial_numbers' => ['']
-    //         ];
-    //     }
-    // }
-
     protected $rules = [
         'paidAmount' => 'required|numeric|min:0',
         // Add other validation rules as needed
@@ -76,7 +40,7 @@ class PointOfSale extends Component
         $this->validateOnly($propertyName);
     }
 
-    public function addToCart($inventoryId) // Changed parameter to accept inventory ID
+    public function addToCart($inventoryId)
     {
         $inventory = Inventory::with('product')->find($inventoryId);
 
@@ -87,7 +51,7 @@ class PointOfSale extends Component
 
         $product = $inventory->product;
         $existingIndex = collect($this->cart)->search(function ($item) use ($inventoryId) {
-            return $item['inventory_id'] == $inventoryId; // Changed to check inventory_id
+            return $item['inventory_id'] == $inventoryId;
         });
 
         $attributes = json_decode($inventory->attribute_combination, true) ?? [];
@@ -115,20 +79,16 @@ class PointOfSale extends Component
             $this->cart[$existingIndex]['serial_numbers'][] = $inventory->serial_number;
         } else {
             $this->cart[] = [
-                'inventory_id' => $inventory->id, // Added inventory ID
+                'inventory_id' => $inventory->id,
                 'product_id' => $product->id,
                 'name' => $product->name,
-                'price' => $inventory->selling_price, // Use inventory price if different
+                'price' => $inventory->selling_price,
                 'quantity' => 1,
-                'stock' => $inventory->quantity, // Use inventory stock
-                // 'imei_numbers' => [$inventory->imei], // Add actual IMEI
-                // 'serial_numbers' => [$inventory->serial_number], // Add actual serial
-                // 'attributes' => json_decode($inventory->attribute_combination, true) ?? [] // Add attributes
-
+                'stock' => $inventory->quantity,
                 'imei_numbers' => [$inventory->imei],
                 'serial_numbers' => [$inventory->serial_number],
-                'attributes' => $attributeDisplay, // Add formatted attributes
-                'raw_attributes' => $attributes // Keep original for reference
+                'attributes' => $attributeDisplay,
+                'raw_attributes' => $attributes
             ];
         }
     }
@@ -219,7 +179,6 @@ class PointOfSale extends Component
 
     public function getDueAmountProperty()
     {
-        //return $this->total - $this->paidAmount;
         return $this->total - (float)$this->paidAmount;
     }
 
@@ -296,6 +255,18 @@ class PointOfSale extends Component
                 'created_by' => auth()->id(),
             ]);
 
+            // Create payment record if paid amount is greater than 0
+            if ($this->paidAmount > 0) {
+                Payment::create([
+                    'sale_id' => $sale->id,
+                    'amount' => $this->paidAmount,
+                    'payment_method' => $this->paymentMethod,
+                    'payment_date' => now(),
+                    'notes' => "Payment of " . $this->paidAmount . " received against total amount of " . $this->total,
+                    'received_by' => auth()->id()
+                ]);
+            }
+
             // Create sale items and update stock
             foreach ($this->cart as $item) {
                 // Filter out empty IMEI/Serial numbers
@@ -324,9 +295,9 @@ class PointOfSale extends Component
                     'serial_numbers' => $saleItem->serial_numbers
                 ]);
 
-                // Update product stock
-                $invtory = Inventory::find($item['inventory_id']);
-                $invtory->decrement('quantity', $item['quantity']);
+                // Update inventory stock
+                $inventory = Inventory::find($item['inventory_id']);
+                $inventory->decrement('quantity', $item['quantity']);
             }
 
             DB::commit();
@@ -356,26 +327,6 @@ class PointOfSale extends Component
         $this->taxAmount = 0;
         $this->note = '';
     }
-
-    // public function render()
-    // {
-    //     $query = Product::with(['brand', 'category'])
-    //         ->where('status', 'active')
-    //         ->where('stock_quantity', '>', 0);
-
-    //     if ($this->search) {
-    //         $query->where(function($q) {
-    //             $q->where('name', 'like', '%' . $this->search . '%')
-    //               ->orWhere('model', 'like', '%' . $this->search . '%')
-    //               ->orWhere('sku', 'like', '%' . $this->search . '%');
-    //         });
-    //     }
-
-    //     $products = $query->get();
-    //     $customers = Customer::where('status', 'active')->get();
-
-    //     return view('livewire.point-of-sale', compact('products', 'customers'));
-    // }
 
     public function render()
     {
