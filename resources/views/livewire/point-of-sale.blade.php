@@ -240,8 +240,9 @@
                                 <select class="form-select form-select-sm" wire:model="paymentMethod">
                                     <option value="cash">Cash</option>
                                     <option value="card">Card</option>
-                                    <option value="mobile_banking">Mobile Banking</option>
-                                    <option value="emi">EMI</option>
+                                    <option value="bikash">Bkash</option>
+                                    <option value="nagad">Nagad</option>
+                                    <option value="roket">Roket</option>
                                 </select>
                             </div>
 

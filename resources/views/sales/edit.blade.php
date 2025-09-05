@@ -160,8 +160,9 @@
                                                     <select class="form-control" id="payment_method_new" name="payment_method_new">
                                                         <option value="cash">Cash</option>
                                                         <option value="card">Card</option>
-                                                        <option value="bank_transfer">Bank Transfer</option>
-                                                        <option value="mobile_banking">Mobile Banking</option>
+                                                        <option value="bikash">Bkash</option>
+                                                        <option value="nagad">Nagad</option>
+                                                        <option value="roket">Roket</option>
                                                     </select>
                                                 </div>
                                             </div>
