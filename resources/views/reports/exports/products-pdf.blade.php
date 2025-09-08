@@ -100,7 +100,8 @@
         </thead>
         <tbody>
             @php
-                $totalPrice = 0;
+                $totalSellingPrice = 0;
+                $totalPurchasePrice = 0;
                 $sl = 1;
             @endphp
             @forelse($inventories as $inventory)
