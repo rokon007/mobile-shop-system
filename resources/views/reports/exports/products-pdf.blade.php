@@ -92,10 +92,10 @@
                 <th>SL</th>
                 <th>Product</th>
                 <th>Brand</th>
-                <th>Category</th>
                 <th>IMEI/Serial</th>
                 <th>Configuration</th>
-                <th class="text-right">Price (Tk)</th>
+                <th class="text-right">Purchase Price (Tk)</th>
+                <th class="text-right">Selling Price (Tk)</th>
             </tr>
         </thead>
         <tbody>
@@ -106,7 +106,8 @@
             @forelse($inventories as $inventory)
                 @php
                     $attributes = json_decode($inventory->attribute_combination, true) ?? [];
-                    $totalPrice += $inventory->selling_price;
+                    $totalSellingPrice += $inventory->selling_price;
+                    $totalPurchasePrice += $inventory->purchase_price;
                 @endphp
                 <tr>
                     <td>{{ $sl++ }}</td>
@@ -128,6 +129,7 @@
                             @endif
                         @endforeach
                     </td>
+                    <td class="text-right">{{ number_format($inventory->purchase_price, 2) }}</td>
                     <td class="text-right">{{ number_format($inventory->selling_price, 2) }}</td>
                 </tr>
             @empty
@@ -139,8 +141,12 @@
             <!-- Total row -->
             @if($inventories->count() > 0)
             <tr>
-                <td colspan="6" style="text-align: right; font-weight: bold;">Total Value:</td>
-                <td class="text-right" style="font-weight: bold;">Tk{{ number_format($totalPrice, 2) }}</td>
+                <td colspan="6" style="text-align: right; font-weight: bold;">Total Purchase Value:</td>
+                <td class="text-right" style="font-weight: bold;">Tk{{ number_format($totalPurchasePrice, 2) }}</td>
+            </tr>
+            <tr>
+                <td colspan="6" style="text-align: right; font-weight: bold;">Total Selling Value:</td>
+                <td class="text-right" style="font-weight: bold;">Tk{{ number_format($totalSellingPrice, 2) }}</td>
             </tr>
             @endif
         </tbody>
@@ -149,7 +155,8 @@
     <div class="summary-total">
         <strong>Inventory Summary:</strong><br>
         Total Products: {{ $inventories->count() }}<br>
-        Total Inventory Value: Tk{{ number_format($totalPrice, 2) }}
+        Total Purchase Value: Tk{{ number_format($totalPurchasePrice, 2) }}<br>
+        Total Selling Value: Tk{{ number_format($totalSellingPrice, 2) }}
     </div>
 
     <div class="footer">
