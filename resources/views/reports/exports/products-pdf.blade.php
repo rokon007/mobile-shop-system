@@ -114,7 +114,6 @@
                     <td>{{ $sl++ }}</td>
                     <td>{{ $inventory->product->name ?? 'N/A' }}</td>
                     <td>{{ $inventory->product->brand->name ?? 'N/A' }}</td>
-                    <td>{{ $inventory->product->category->name ?? 'N/A' }}</td>
                     <td>{{ $inventory->imei ?? $inventory->serial_number ?? 'N/A' }}</td>
                     <td>
                         @foreach($attributes as $key => $value)
