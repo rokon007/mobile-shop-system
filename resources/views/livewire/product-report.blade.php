@@ -69,10 +69,10 @@
                             <tr>
                                 <th>Product</th>
                                 <th>Brand</th>
-                                <th>Category</th>
                                 <th>IMEI</th>
                                 <th>Confuguration</th>
-                                <th>Price</th>
+                                <th>Purchase Price</th>
+                                <th>Selling Price</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -84,7 +84,6 @@
                             <tr>
                                 <td>{{ $inventory->product->name }}</td>
                                 <td>{{ $inventory->product->brand->name ?? 'N/A' }}</td>
-                                <td>{{ $inventory->product->category->name ?? 'N/A' }}</td>
                                 <td>{{ $inventory->imei }}</td>
                                 <td>
                                     @foreach($attributes as $key => $value)
@@ -102,6 +101,7 @@
                                         @endif
                                     @endforeach
                                 </td>
+                                <td>৳{{ number_format($inventory->purchase_price, 2) }}</td>
                                 <td>৳{{ number_format($inventory->selling_price, 2) }}</td>
                             </tr>
                             @empty

@@ -346,7 +346,7 @@
                     <tbody>
                         @forelse($products as $product)
                             @php
-                                $stock=$product->inventories->count()
+                               $stock = $product->inventories->sum('quantity');
                             @endphp
                         <tr>
                             <td class="text-muted">{{ $product->id }}</td>
