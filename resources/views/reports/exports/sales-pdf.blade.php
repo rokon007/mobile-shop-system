@@ -63,13 +63,17 @@
         <div class="date">Generated on: {{ now()->format('M d, Y h:i A') }}</div>
     </div>
 
+    @php
+        $hideDateColumn = request()->start_date && request()->end_date && request()->start_date == request()->end_date;
+    @endphp
+
     @if(request()->start_date || request()->end_date || request()->customer_id)
     <div class="filters">
         <strong>Filters Applied:</strong><br>
-        @if(request()->start_date && request()->start_date != request()->end_date)
+        @if(request()->start_date)
         - Start Date: {{ request()->start_date }}<br>
         @endif
-        @if(request()->end_date && request()->start_date != request()->end_date)
+        @if(request()->end_date)
         - End Date: {{ request()->end_date }}<br>
         @endif
         @if(request()->customer_id)
@@ -82,7 +86,9 @@
         <thead>
             <tr>
                 <th>Invoice #</th>
+                @if(!$hideDateColumn)
                 <th>Date</th>
+                @endif
                 <th>Customer</th>
                 <th>Product Details</th>
                 <th>Total</th>
@@ -94,10 +100,12 @@
                 <tr>
                     @if($index === 0)
                         <td rowspan="{{ $sale->items->count() }}">{{ $sale->invoice_no }}</td>
+                        @if(!$hideDateColumn)
                         <td rowspan="{{ $sale->items->count() }}">{{ $sale->sale_date->format('M d, Y') }}</td>
+                        @endif
                         <td rowspan="{{ $sale->items->count() }}">{{ $sale->customer->name ?? 'Walk-in Customer' }}</td>
                     @endif
-
+                    
                     <td>
                         <strong>{{ $item->product->name }}</strong>
                         <div class="product-details">
@@ -105,19 +113,19 @@
                                 $imeiNumbers = json_decode($item->imei_numbers, true) ?? [];
                                 $serialNumbers = json_decode($item->serial_numbers, true) ?? [];
                             @endphp
-
+                            
                             @if(!empty($imeiNumbers) && array_filter($imeiNumbers))
                                 @foreach(array_filter($imeiNumbers) as $imei)
                                     <div>IMEI: {{ $imei }}</div>
                                 @endforeach
                             @endif
-
+                            
                             @if(!empty($serialNumbers) && array_filter($serialNumbers))
                                 @foreach(array_filter($serialNumbers) as $serial)
                                     <div>Serial: {{ $serial }}</div>
                                 @endforeach
                             @endif
-
+                            
                             @php
                                 // Get attributes from sale item's attribute_data if available
                                 $attributes = json_decode($item->attribute_data, true) ?? [];
@@ -149,7 +157,7 @@
                             @endif
                         </div>
                     </td>
-
+                    
                     @if($index === 0)
                         <td rowspan="{{ $sale->items->count() }}">{{ number_format($sale->total_amount, 2) }}</td>
                     @endif
