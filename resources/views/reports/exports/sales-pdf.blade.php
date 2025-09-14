@@ -65,6 +65,16 @@
 
     @php
         $hideDateColumn = request()->start_date && request()->end_date && request()->start_date == request()->end_date;
+
+        // Calculate total profit
+        $totalProfit = 0;
+        foreach($sales as $sale) {
+            foreach($sale->items as $item) {
+                $costPrice = $item->inventory->purchase_price ?? 0;
+                $profit = ($item->unit_price - $costPrice) * $item->quantity;
+                $totalProfit += $profit;
+            }
+        }
     @endphp
 
     @if(request()->start_date || request()->end_date || request()->customer_id)
@@ -105,7 +115,7 @@
                         @endif
                         <td rowspan="{{ $sale->items->count() }}">{{ $sale->customer->name ?? 'Walk-in Customer' }}</td>
                     @endif
-                    
+
                     <td>
                         <strong>{{ $item->product->name }}</strong>
                         <div class="product-details">
@@ -113,19 +123,19 @@
                                 $imeiNumbers = json_decode($item->imei_numbers, true) ?? [];
                                 $serialNumbers = json_decode($item->serial_numbers, true) ?? [];
                             @endphp
-                            
+
                             @if(!empty($imeiNumbers) && array_filter($imeiNumbers))
                                 @foreach(array_filter($imeiNumbers) as $imei)
                                     <div>IMEI: {{ $imei }}</div>
                                 @endforeach
                             @endif
-                            
+
                             @if(!empty($serialNumbers) && array_filter($serialNumbers))
                                 @foreach(array_filter($serialNumbers) as $serial)
                                     <div>Serial: {{ $serial }}</div>
                                 @endforeach
                             @endif
-                            
+
                             @php
                                 // Get attributes from sale item's attribute_data if available
                                 $attributes = json_decode($item->attribute_data, true) ?? [];
@@ -157,9 +167,9 @@
                             @endif
                         </div>
                     </td>
-                    
+
                     @if($index === 0)
-                        <td rowspan="{{ $sale->items->count() }}">{{ number_format($sale->total_amount, 2) }}</td>
+                        <td rowspan="{{ $sale->items->count() }}">Tk {{ number_format($sale->total_amount, 2) }}</td>
                     @endif
                 </tr>
                 @endforeach
@@ -170,8 +180,8 @@
     <div class="summary">
         <strong>Summary:</strong><br>
         Total Sales: {{ $sales->count() }}<br>
-        Total Amount: ${{ number_format($sales->sum('total_amount'), 2) }}<br>
-        Average Sale: ${{ number_format($sales->avg('total_amount'), 2) }}
+        Total Amount: Tk {{ number_format($sales->sum('total_amount'), 2) }}<br>
+        Total Profit: Tk {{ number_format($totalProfit, 2) }}
     </div>
 
     <div class="footer">
