@@ -47,6 +47,14 @@
             background-color: #f9f9f9;
             border-radius: 5px;
         }
+        .product-details {
+            font-size: 10px;
+            color: #666;
+        }
+        .attribute-item {
+            display: inline-block;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -58,10 +66,10 @@
     @if(request()->start_date || request()->end_date || request()->customer_id)
     <div class="filters">
         <strong>Filters Applied:</strong><br>
-        @if(request()->start_date)
+        @if(request()->start_date && request()->start_date != request()->end_date)
         - Start Date: {{ request()->start_date }}<br>
         @endif
-        @if(request()->end_date)
+        @if(request()->end_date && request()->start_date != request()->end_date)
         - End Date: {{ request()->end_date }}<br>
         @endif
         @if(request()->customer_id)
@@ -76,23 +84,77 @@
                 <th>Invoice #</th>
                 <th>Date</th>
                 <th>Customer</th>
-                <th>Items</th>
-                <th>Subtotal</th>
-                <th>Tax</th>
+                <th>Product Details</th>
                 <th>Total</th>
             </tr>
         </thead>
         <tbody>
             @foreach($sales as $sale)
-            <tr>
-                <td>{{ $sale->invoice_no }}</td>
-                <td>{{ $sale->sale_date->format('M d, Y') }}</td>
-                <td>{{ $sale->customer->name ?? 'Walk-in Customer' }}</td>
-                <td>{{ $sale->items->count() }}</td>
-                <td>{{ number_format($sale->subtotal, 2) }}</td>
-                <td>{{ number_format($sale->tax_amount, 2) }}</td>
-                <td>{{ number_format($sale->total_amount, 2) }}</td>
-            </tr>
+                @foreach($sale->items as $index => $item)
+                <tr>
+                    @if($index === 0)
+                        <td rowspan="{{ $sale->items->count() }}">{{ $sale->invoice_no }}</td>
+                        <td rowspan="{{ $sale->items->count() }}">{{ $sale->sale_date->format('M d, Y') }}</td>
+                        <td rowspan="{{ $sale->items->count() }}">{{ $sale->customer->name ?? 'Walk-in Customer' }}</td>
+                    @endif
+
+                    <td>
+                        <strong>{{ $item->product->name }}</strong>
+                        <div class="product-details">
+                            @php
+                                $imeiNumbers = json_decode($item->imei_numbers, true) ?? [];
+                                $serialNumbers = json_decode($item->serial_numbers, true) ?? [];
+                            @endphp
+
+                            @if(!empty($imeiNumbers) && array_filter($imeiNumbers))
+                                @foreach(array_filter($imeiNumbers) as $imei)
+                                    <div>IMEI: {{ $imei }}</div>
+                                @endforeach
+                            @endif
+
+                            @if(!empty($serialNumbers) && array_filter($serialNumbers))
+                                @foreach(array_filter($serialNumbers) as $serial)
+                                    <div>Serial: {{ $serial }}</div>
+                                @endforeach
+                            @endif
+
+                            @php
+                                // Get attributes from sale item's attribute_data if available
+                                $attributes = json_decode($item->attribute_data, true) ?? [];
+
+                                // Fallback to inventory attributes if not in sale item
+                                if (empty($attributes) && $item->inventory) {
+                                    $attributes = json_decode($item->inventory->attribute_combination, true) ?? [];
+                                }
+
+                                // Convert to human-readable format if needed
+                                $displayAttributes = [];
+                                foreach ($attributes as $filterId => $optionId) {
+                                    $filter = App\Models\Filter::find($filterId);
+                                    $option = App\Models\FilterOption::find($optionId);
+                                    if ($filter && $option) {
+                                        $displayAttributes[$filter->name] = $option->value;
+                                    }
+                                }
+                            @endphp
+
+                            @if(!empty($displayAttributes))
+                                <div class="attributes">
+                                    @foreach($displayAttributes as $name => $value)
+                                        <span class="attribute-item">
+                                            {{ $name }}: <strong>{{ $value }}</strong>
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </td>
+
+                    @if($index === 0)
+                        <td rowspan="{{ $sale->items->count() }}">{{ number_format($sale->total_amount, 2) }}</td>
+                    @endif
+                </tr>
+                @endforeach
             @endforeach
         </tbody>
     </table>
